@@ -31,6 +31,16 @@
 ;Funcion reduce
 
 ;Funcion mconcat
+(define (mconcat lst1 lst2)
+  (cond
+    [(empty? lst2) lst1]
+    [else (mconcat (pega-fin lst1 (car lst2)) (cdr lst2))]))
+
+(define (pega-fin lst1 lst2)
+  (cond
+    [(empty? lst2) lst1]
+    [else (append lst1 (car lst2))]))
+;Error en la funcion pega-fin
 
 ;Funcion mmap
 
