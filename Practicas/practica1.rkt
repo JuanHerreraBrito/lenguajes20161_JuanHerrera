@@ -9,6 +9,20 @@
    [else (* x (pow x (- y 1)))]))
 
 ;Funcion average
+(define (average lst)
+  (cond
+    [(empty? lst) 0]
+    [else (/ (sumalist lst) (tamanio lst))]))
+;Funcion sumalist que suma todos los elementos de una lista, auxiliar para average
+(define (sumalist lst)
+  (cond
+    [(empty? lst) 0]
+    [else (+ (car lst) (sumalist (cdr lst)))]))
+;Funcion para sacar el numero de elementos de una lista, auxiliar para average
+(define (tamanio lst)
+  (cond
+    [(empty? lst) 0]
+    [else (+ 1 (tamanio (cdr lst)))]))
 
 ;Funcion primes
 
