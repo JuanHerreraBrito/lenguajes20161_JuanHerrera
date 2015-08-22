@@ -9,10 +9,12 @@
    [else (* x (pow x (- y 1)))]))
 
 ;2 Funcion average
+
 (define (average lst)
   (cond
     [(empty? lst) 0]
     [else (/ (sumalist lst) (tamanio lst))]))
+
 ;Funcion sumalist que suma todos los elementos de una lista, auxiliar para average
 (define (sumalist lst)
   (cond
@@ -23,6 +25,9 @@
   (cond
     [(empty? lst) 0]
     [else (+ 1 (tamanio (cdr lst)))]))
+
+
+(test (average '()) 0)
 
 ;3 Funcion primes
 
@@ -83,9 +88,20 @@
 
 ;7 Funcion mmap
 
+(define (mmap foo ls)
+  (cond
+    [(empty? ls) '()]
+    [else (cons(foo (car ls)) (mmap foo (cdr ls)))]))
+
 ;8 Funcion mfilter
 
 ;9 Funcion any?
+
+(define (any? foo ls)
+  (cond
+   [(empty? ls) #f ]
+   [(foo (car ls)) #t]
+   [else (any? foo (cdr ls))]))
 
 ;10 Funcion every?
 
