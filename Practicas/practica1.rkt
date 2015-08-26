@@ -100,11 +100,12 @@
     [else (cons(foo (car ls)) (mmap foo (cdr ls)))]))
 
 ;8 Funcion mfilter
-;(define (mfilter pred lst);duda en el predicado
- ; (cond
-  ;  [(empty? lst) #t]
-   ; [(pred? (car lst) (car lst))]
-    ;[else (mfilter (cdr lst))]))
+(define mfilter
+    (lambda (pred lst)
+      (cond 
+        [(null? lst) '()]
+        [(pred (car lst)) (cons (car lst) (mfilter pred (cdr lst)))]
+        [else (mfilter pred (cdr lst))])))
 ;9 Funcion any?
 
 (define (any? foo ls)
