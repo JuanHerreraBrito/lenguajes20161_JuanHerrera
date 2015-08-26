@@ -58,7 +58,7 @@
   (cond
     [(empty? lst1) (list)]
     [(empty? lst2) (list)]
-    [else '((car lst1) (car lst2)) (zip (cdr lst1) (cdr lst2))]))
+    [else (zip (cdr lst1) (cdr lst2)) '((car lst1) (car lst2)) ]))
 
 
 ;5 Funcion reduce
@@ -89,7 +89,7 @@
 (define (reversa lst1 lst2)
   (cond
     [(empty? lst1) lst2]
-    [else(reversa (cdr lst1)(cons (car lst1) lst2))]))
+    [else(reversa (cdr lst1)(cons (car lst1) lst2))]));podrido
 
 ;7 Funcion mmap
 
@@ -109,5 +109,9 @@
    [else (any? foo (cdr ls))]))
 
 ;10 Funcion every?
-
+(define (every? foo lst)
+  (cond
+    [(empty? lst) #t]
+    [(foo (car lst)) (every? foo (cdr lst)) ]
+    [else #f]))
 ;11 Funcion mpowerset
