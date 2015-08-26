@@ -54,6 +54,11 @@
    ))
   
 ;4 Funcion zip
+(define (zip lst1 lst2)
+  (cond
+    [(empty? lst1) (list)]
+    [(empty? lst2) (list)]
+    [else '((car lst1) (car lst2)) (zip (cdr lst1) (cdr lst2))]))
 
 
 ;5 Funcion reduce
