@@ -54,6 +54,11 @@
    ))
   
 ;4 Funcion zip
+(define (zip lst1 lst2)
+  (cond
+    [(empty? lst1) (list)]
+    [(empty? lst2) (list)]
+    [else '((car lst1) (car lst2)) (zip (cdr lst1) (cdr lst2))]))
 
 
 ;5 Funcion reduce
@@ -113,12 +118,20 @@
 ;elementos hasta las que tengan mas, quedaran en orden.
 ;y nos quedara el conjunto potencia.
 (define (mpowerset ls)
-  (quitaRepetidos ()))
+  #|(quitaRepetidos ())|#5)
 
 
 
 (define (mequal? ls1 ls2)
   (cond
-   [( (empty? ls1) (empty? ls2)) #t]
-   [()]
+   [(and (empty? ls1) (empty? ls2)) #t]
+   [(or (empty? ls1) (empty? ls2)) #f]
+   [(= (car ls1)(car ls2)) (mequal? (cdr ls1)(cdr ls2))]
+   [else #f]
   ))
+
+(define (listaIndividual ls extraAcc)
+  (cond
+   [(empty? ls) '()]
+   [else (mconcat (list (mconcat extraAcc (cdr ls)))  (listaIndividual (cdr ls) (mconcat extraAcc (list(car ls)))) )]
+   ))
