@@ -55,10 +55,11 @@
   
 ;4 Funcion zip
 (define (zip lst1 lst2)
-  (cond
-    [(empty? lst1) (list)]
-    [(empty? lst2) (list)]
-    [else (zip (cdr lst1) (cdr lst2)) '((car lst1) (car lst2)) ]))
+  (if (or (empty? lst1) (empty? lst2))
+      (list)
+      (cons (list (car lst1) (car lst2))
+            (zip  (cdr lst1) (cdr lst2)))))
+    
 
 
 ;5 Funcion reduce
@@ -89,7 +90,7 @@
 (define (reversa lst1 lst2)
   (cond
     [(empty? lst1) lst2]
-    [else(reversa (cdr lst1)(cons (car lst1) lst2))]));podrido
+    [else(reversa (cdr lst1)(cons (car lst1) lst2))]))
 
 ;7 Funcion mmap
 
@@ -99,7 +100,11 @@
     [else (cons(foo (car ls)) (mmap foo (cdr ls)))]))
 
 ;8 Funcion mfilter
-
+;(define (mfilter pred lst);duda en el predicado
+ ; (cond
+  ;  [(empty? lst) #t]
+   ; [(pred? (car lst) (car lst))]
+    ;[else (mfilter (cdr lst))]))
 ;9 Funcion any?
 
 (define (any? foo ls)
