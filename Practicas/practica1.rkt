@@ -121,6 +121,15 @@
   #|(quitaRepetidos ())|#5)
 
 
+(define (flipList ls)
+  #|(quitaRepetidos ())|#5)
+
+(define (cleanSet ls)
+  #|(quitaRepetidos ())|#5)
+
+(define (powersetAux ls)
+  #|(quitaRepetidos ())|#5)
+
 
 (define (mequal? ls1 ls2)
   (cond
@@ -130,8 +139,8 @@
    [else #f]
   ))
 
-(define (listaIndividual ls extraAcc)
+(define (individualList ls extraAcc)
   (cond
    [(empty? ls) '()]
-   [else (mconcat (list (mconcat extraAcc (cdr ls)))  (listaIndividual (cdr ls) (mconcat extraAcc (list(car ls)))) )]
+   [else (mconcat (list (mconcat extraAcc (cdr ls)))  (individualList (cdr ls) (mconcat extraAcc (list(car ls)))) )]
    ))
