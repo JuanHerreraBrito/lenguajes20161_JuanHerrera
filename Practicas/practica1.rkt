@@ -55,10 +55,18 @@
   
 ;4 Funcion zip
 (define (zip lst1 lst2)
+<<<<<<< HEAD
   (cond
     [(empty? lst1) (list)]
     [(empty? lst2) (list)]
     [else '((car lst1) (car lst2)) (zip (cdr lst1) (cdr lst2))]))
+=======
+  (if (or (empty? lst1) (empty? lst2))
+      (list)
+      (cons (list (car lst1) (car lst2))
+            (zip  (cdr lst1) (cdr lst2)))))
+    
+>>>>>>> 9dd1a9a8344b5b44a12019dd2a1e3031c7383ebb
 
 
 ;5 Funcion reduce
@@ -99,7 +107,12 @@
     [else (cons(foo (car ls)) (mmap foo (cdr ls)))]))
 
 ;8 Funcion mfilter
-
+(define mfilter
+    (lambda (pred lst)
+      (cond 
+        [(null? lst) '()]
+        [(pred (car lst)) (cons (car lst) (mfilter pred (cdr lst)))]
+        [else (mfilter pred (cdr lst))])))
 ;9 Funcion any?
 
 (define (any? foo ls)
@@ -109,7 +122,11 @@
    [else (any? foo (cdr ls))]))
 
 ;10 Funcion every?
-
+(define (every? foo lst)
+  (cond
+    [(empty? lst) #t]
+    [(foo (car lst)) (every? foo (cdr lst)) ]
+    [else #f]))
 ;11 Funcion mpowerset
 ;El algoritmo funcionara quitando elementos
 ;de las listas del tamaño inmediato mas grande
