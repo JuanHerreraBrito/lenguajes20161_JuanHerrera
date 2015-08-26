@@ -106,3 +106,19 @@
 ;10 Funcion every?
 
 ;11 Funcion mpowerset
+;El algoritmo funcionara quitando elementos
+;de las listas del tamaño inmediato mas grande
+;de manera que se generan muchas listas repetidas
+;al eliminar las repetidas desde las que tengan pocos
+;elementos hasta las que tengan mas, quedaran en orden.
+;y nos quedara el conjunto potencia.
+(define (mpowerset ls)
+  (quitaRepetidos ()))
+
+
+
+(define (mequal? ls1 ls2)
+  (cond
+   [( (empty? ls1) (empty? ls2)) #t]
+   [()]
+  ))
