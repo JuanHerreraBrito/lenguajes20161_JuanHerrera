@@ -102,6 +102,12 @@
     [(empty? lst1) lst2]
     [else(reversa (cdr lst1)(cons (car lst1) lst2))]))
 
+(test (mconcat '(1 2) '(3 4)) '(1 2 3 4))
+(test (mconcat '(1 2 3 4 5 6) '()) '(1 2 3 4 5 6))
+(test (mconcat '() '(3 4 d s w)) '(3 4 d s w))
+(test (mconcat '() '()) '())
+(test (mconcat '(a b c d e) '(1 2 3 4 5)) '(a b c d e 1 2 3 4 5))
+
 ;7 Funcion mmap
 
 (define (mmap foo ls)
@@ -110,6 +116,19 @@
     [else (cons(foo (car ls)) (mmap foo (cdr ls)))]))
 
 ;8 Funcion mfilter
+(define mfilter
+ (lambda (pred lst)
+  (cond 
+     [(null? lst) '()]
+     [(pred (car lst)) (cons (car lst) (mfilter pred (cdr lst)))]
+     [else (mfilter pred (cdr lst))])))
+
+(test (mfilter (lambda (l) (not (empty? l))) '((1 4 2) () (2 4) ())) '((1 4 2) (2 4)))
+(test (mfilter (lambda (l) (equal? l 'a)) '(1 a 3 4 5 b c)) '(a))
+(test (mfilter (lambda (l) (<= l 10)) '(10 2 30 4 50 6 11)) '(10 2 4 6))
+(test (mfilter (lambda (l) (equal? l 'perro)) '(1 ds perro 4 erro cosa perro)) '(perro perro))
+(test (mfilter (lambda (l) (list? l)) '(1 '() 3 '(4 5) 6 7)) '('() '(4 5)))
+
 
 ;9 Funcion any?
 
@@ -120,6 +139,13 @@
    [else (any? foo (cdr ls))]))
 
 ;10 Funcion every?
+(define (every? foo lst)
+ (cond
+   [(empty? lst) #t]
+   [(foo (car lst)) (every? foo (cdr lst)) ]
+   [else #f]))
+
+
 
 ;11 Funcion mpowerset
 ;El algoritmo funcionara quitando elementos
