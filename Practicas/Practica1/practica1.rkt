@@ -34,7 +34,6 @@
 (test (average '(654321 9 70 600 5000 40000 300000)) 142857.142857143)
 
 
-
 ;3 Funcion primes
 
 (define (primes n)
@@ -62,9 +61,9 @@
 ;4 Funcion zip
 (define (zip lst1 lst2)
   (cond
-    [(empty? lst1) (list)]
-    [(empty? lst2) (list)]
-    [else '((car lst1) (car lst2)) (zip (cdr lst1) (cdr lst2))]))
+    [(empty? lst1) '()]
+    [(empty? lst2) '()]
+    [else (cons (list (car lst1) (car lst2)) (zip (cdr lst1) (cdr lst2)))]))
 
 (test (zip '(1 2) '(3 4)) '((1 3)(2 4)))
 (test (zip '(6 5 4 2 2 3 4) '()) '())
@@ -145,7 +144,11 @@
    [(foo (car lst)) (every? foo (cdr lst)) ]
    [else #f]))
 
-
+(test (every? symbol? '(a b c d e 1)) #f)
+(test (every? symbol? '(a b c d e f)) #t)
+(test (every? number? '(1 2 3 4 5 empty)) #f)
+(test (every? symbol? '()) #t)
+(test (every? number? '(23 3545 .5 3/5)) #t)
 
 ;11 Funcion mpowerset
 ;El algoritmo funcionara quitando elementos
@@ -156,7 +159,7 @@
 ;y nos quedara el conjunto potencia.
 
 (define (mpowerset ls)
-  (cleanSet ( powersetAux (list ls) (list ls) )))
+  (cleanSet (reversa ( powersetAux (list ls) (list ls) ) '())))
 
 
 (define (cleanSet ls)
@@ -180,7 +183,7 @@
   (cond
    [(and (empty? ls1) (empty? ls2)) #t]
    [(or (empty? ls1) (empty? ls2)) #f]
-   [(= (car ls1)(car ls2)) (mequal? (cdr ls1)(cdr ls2))]
+   [(equal? (car ls1)(car ls2)) (mequal? (cdr ls1)(cdr ls2))]
    [else #f]
   ))
 
