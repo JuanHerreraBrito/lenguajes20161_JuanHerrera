@@ -8,6 +8,12 @@
    [(zero? y) 1]
    [else (* x (pow x (- y 1)))]))
 
+(test (pow 2 10) 1024)
+(test (pow 10 10) 10000000000)
+(test (pow 5 0) 1)
+(test (pow 233 1) 233)
+(test (pow (pow 2 2) 16) 4294967296)
+
 ;2 Funcion average
 
 (define (average lst)
@@ -57,7 +63,11 @@
     [(= (modulo n m) 0) #f]
     [else (esPrimoAux n (- m 1))]
    ))
-  
+(test (primes 100) '(2 3 5 7 11 13 17 19 23 29 31 37 41 43 47 53 59 61 67 71 73 79 83 89 97))
+(test (primes 5) '(2 3 5))
+(test (primes 0) '() )
+(test (primes 7) '(2 3 5 7) )
+(test (primes 12) '(2 3 5 7 11) )
 ;4 Funcion zip
 (define (zip lst1 lst2)
   (cond
@@ -82,6 +92,8 @@
   (cond
     [(empty? ls) acc]
     [else (reduceAux foo (cdr ls) (foo (car ls) acc))]))
+
+;(test (reduce pow '(2 2 2 2 2 2 2))) trono
 
 ;6 Funcion mconcat
 
