@@ -176,14 +176,16 @@
 
 (define (cleanSet ls)
   (cond
-    [(empty? ls) (list)]
-    ;[(mequal? ls (car ls)) ls]
-    [else (csaux (car ls) (cdr ls))]))
+    [(empty? ls) '()]
+    [(inList? (car ls) (cdr ls)) (cleanSet (cdr ls))]
+    [else (cons (car ls) (cleanSet (cdr ls)))]))
 
-(define (csaux a ls)
+(define (inList? a ls)
   (cond
-    [(mequal? a (car ls)) ls]
-    [else (cons a (csaux (car(cdr ls)) (cdr(cdr ls))))]))
+    [(empty? ls) #f]
+    [(mequalList? a (car ls)) #t]
+    [else (inList? a (cdr ls))]))
+
 
 (define (powersetAux ls accResult)
   (cond
@@ -191,16 +193,25 @@
     [else (powersetAux (mconcat (cdr ls) (individualList (car ls) '())) (mconcat accResult (individualList (car ls) '())))]))
 
 
-(define (mequal? ls1 ls2)
+(define (mequalList? ls1 ls2)
   (cond
    [(and (empty? ls1) (empty? ls2)) #t]
    [(or (empty? ls1) (empty? ls2)) #f]
-   [(equal? (car ls1)(car ls2)) (mequal? (cdr ls1)(cdr ls2))]
+   [(and (symbol? (car ls1)) (and (symbol? (car ls2)) (symbol=? (car ls1) (car ls2)))) (mequalList? (cdr ls1)(cdr ls2))]
+   [(and (number? (car ls1)) (and (number? (car ls2)) (= (car ls1)(car ls2)))) (mequalList? (cdr ls1)(cdr ls2))]
    [else #f]
   ))
 
 (define (individualList ls extraAcc)
   (cond
    [(empty? ls) '()]
-   [else (mconcat (list (mconcat extraAcc (cdr ls)))  (individualList (cdr ls) (mconcat extraAcc (list(car ls)))) )]
+   [else (mconcat (list (mconcat extraAcc (cdr ls)))  (individualList (cdr ls) (mconcat extraAcc (list(car ls)))))]
    ))
+
+(test (mpowerset '()) '(()))
+(test (mpowerset '((1 a 3) ())) '(() ((1 a 3)) (()) ((1 a 3) ())))
+(test (mpowerset '(1 b 2)) '(() (1) (b) (2) (1 b) (1 2) (b 2) (1 b 2)))
+(test (mpowerset '(a b c d)) '(() (a) (b) (c) (d) (a b) (a c) (a d) (b c) (b d) (c d) (a b c) (a b d) (a c d) (b c d) (a b c d)))
+(test (mpowerset '(1 2 3 4 5)) '(() (1) (2) (3) (4) (5) (1 2) (1 3) (1 4) (1 5) (2 3) (2 4) (2 5) (3 4) (3 5) (4 5)
+                                    (1 2 3) (1 2 4) (1 2 5) (1 3 4) (1 3 5) (1 4 5) (2 3 4) (2 3 5) (2 4 5) (3 4 5)
+                                    (1 2 3 4) (1 2 3 5) (1 2 4 5) (1 3 4 5) (2 3 4 5) (1 2 3 4 5)))
