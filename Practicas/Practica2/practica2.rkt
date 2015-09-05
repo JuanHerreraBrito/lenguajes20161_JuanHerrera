@@ -7,7 +7,7 @@
 (define-type Array
   [MArray (n any/c) (lst list?)])
 
-(test (MArray 5 '(1 2 3 4 5)) (MArray 5 '(1 2 3 4 5)) )
+;(test (MArray 5 '(1 2 3 4 5)) (MArray 5 '(1 2 3 4 5)) )
 
 ;2 MList
 (define-type MList
@@ -30,6 +30,12 @@
    ))
 
 |#
+
+(define-type NTree
+  [TLEmpty]
+  ;[NodeN lista de tlemptys que se llama nnodo o una lista e cosas que se llama nnoden
+  )
+
 
 ;4 Position
  (define-type Position
@@ -54,8 +60,14 @@
 
 
 ;7 MArray2MList
+;(define (MArray2MList ))
 
-
+#|
+(define (MGetElements mlst)
+  (cases Array mlst
+    [MArray (n lst) lst]
+    [else (error MGetElements "Not a MArray")]))
+|#
 ;8 printML
 
 
@@ -87,6 +99,5 @@
 
 
 ;18 in-figure?
-
 
 
