@@ -1,5 +1,6 @@
 #lang plai
 
+(print-only-errors true)
 
 ;Seccion 1
 
@@ -12,7 +13,7 @@
 ;2 MList
 (define-type MList
   [MEmpty]
-  [MCons (n any/c) (l MList?)]);;poner any en lugar de number
+  [MCons (n any/c) (l MList?)])
 
 (test (MEmpty) (MEmpty))
 (test (MCons 1(MCons 2 (MCons 3 (MEmpty)))) (MCons 1(MCons 2 (MCons 3 (MEmpty)))) )
@@ -58,34 +59,149 @@
 ;6 setvalueA
 
 
+#|
+(test (setvalueA (MArray 1 '(10)) 0 1) (MArray 1 '(1)))
+(test (setvalueA (MArray 6 '(1 2 3 4 5 6)) 4 200) (MArray 6 '(1 2 3 4 200 6)))
+(test (setvalueA (MArray 5 '(z x y w v))  3 'd) (MArray 5 '(z x y d v)))
+(test (setvalueA (MArray 4 '(1 b 3 d))  1 1) (MArray 4 '(1 1 3 d)))
+;(test (setvalueA (MArray 4 '(1 2 3 4)) 4 1) (. . setvalueA: Out of bounds)) Verificar sintaxis
+|#
 
 ;7 MArray2MList
-;(define (MArray2MList ))
+(define (MArray2MList ma)
+  (cond
+    [(empty? (MGetElements ma)) (MEmpty)]
+    [else (MCons (car (MGetElements ma)) (MArray2MList (MArray (MGetSize ma) (cdr (MGetElements ma)))))]))
 
-#|
-(define (MGetElements mlst)
-  (cases Array mlst
+
+(define (MGetElements ma)
+  (type-case Array ma
     [MArray (n lst) lst]
-    [else (error MGetElements "Not a MArray")]))
-|#
-;8 printML
+    ))
 
+(define (MGetSize ma)
+  (type-case Array ma
+    [MArray (n lst) n]
+    ))
+
+
+(test (MArray2MList (MArray 1 '(1))) (MCons 1 (MEmpty)))
+(test (MArray2MList (MArray 0 '())) (MEmpty))
+(test (MArray2MList (MArray 100 '(a b c))) (MCons 'a (MCons 'b (MCons 'c (MEmpty)))))
+(test (MArray2MList (MArray 2 '(2 2))) (MCons 2 (MCons 2 (MEmpty))))
+(test (MArray2MList (MArray 6 '(s f gh 3))) (MCons 's (MCons 'f (MCons 'gh (MCons 3 (MEmpty))))))
+
+;8 printML
+#|
+(define (printML ml)
+  )
+
+(test (printML (MEmpty)) "[]")
+(test (printML (MCons 1 (MEmpty))) "[7]")
+(test (printML (MCons  100 (MCons  1000 (MEmpty)))) "[100, 1000]")
+(test (printML (MCons  'a (MCons  'z (MEmpty)))) "[a, z]");Revisar sintaxis
+(test (printML (MCons (MCons  1 (MCons  2 (MEmpty))) (MCons (MCons  3 (MCons  4 (MEmpty))) (MEmpty)))) "[[1, 2],[3, 4]]")
+|#
 
 ;9 concatML
+(define (concatML ml1 ml2)
+  (type-case MList ml1
+    [MEmpty () ml2]
+    [MCons (e ls) (MCons e (concatML ls ml2))]
+    ))
 
+(test (concatML (MEmpty) (MEmpty)) (MEmpty))
+(test (concatML (MCons 1 (MEmpty)) (MEmpty)) (MCons 1 (MEmpty)))
+(test (concatML (MEmpty) (MCons 1 (MEmpty))) (MCons 1 (MEmpty)))
+(test (concatML (MCons 'a (MCons 'b (MEmpty))) (MCons 'c (MCons 'd (MEmpty)))) (MCons 'a (MCons 'b (MCons 'c (MCons 'd (MEmpty))))))
+(test (concatML (MCons 1 (MCons 'b (MEmpty))) (MCons 2 (MCons 'c (MCons 3 (MCons 'f (MCons 4 (MCons 'h (MEmpty)))))))) 
+                (MCons 1 (MCons 'b (MCons 2 (MCons 'c (MCons 3 (MCons 'f (MCons 4 (MCons 'h (MEmpty))))))))))
 
 ;10 lengthML
+#|
+(define (lengthML  ml)
+  (type-case MList ml
+    []
+    []
+  ))
 
+(test (lengthML (MEmpty)) 0)
+(test (lengthML (MCons 100 (MEmpty))) 1)
+(test (lengthML (MCons 'a (MCons 'b (MCons 'c (MEmpty))))) 3)
+(test (lengthML (MCons (MCons 'a (MCons 'b (MCons 'c (MEmpty)))) (MCons 'b (MCons 'c (MEmpty)))) ) 3)
+(test (lengthML (MCons 1 (MCons 2 (MCons 3 (MCons 4 (MCons 5 (MCons 6 (MCons 7 (MCons 8 (MCons 9 (MCons 10 (MCons 11 (MCons 12 (MEmpty)))))))))))))) 12)
+|#
 
 ;11 mapML
 
+(define (mapML foo ml)
+  (type-case MList ml
+    [MEmpty () ml]
+    [MCons (e ls) (MCons (foo e) (mapML foo ls))]))
+
+(test (mapML (lambda (x) (- x x)) (MEmpty)) (MEmpty))
+(test (mapML number? (MCons 1 (MCons 'a (MCons 2 (MEmpty))))) (MCons #t (MCons #f (MCons #t (MEmpty)))))
+(test (mapML (lambda (x) (- x 10)) (MCons 1 (MCons 2 (MCons 3 (MEmpty))))) (MCons -9 (MCons -8 (MCons -7 (MEmpty)))))
+(test (mapML add1 (MCons 1 (MCons 2 (MCons 3 (MEmpty))))) (MCons 2 (MCons 3 (MCons 4 (MEmpty)))))
+(test (mapML not (MCons #t (MCons #f (MCons '#t (MCons #f (MCons #t (MEmpty))))))) (MCons #f (MCons #t (MCons #f (MCons #t (MCons #f (MEmpty)))))))
 
 ;12 filterML
+#|
+(define (lengthML  ml)
+  (type-case MList ml
+    []
+    []
+  ))
 
+(test (filterML zero? (MCons 2 (MCons 1 (MEmpty)))) (MEmpty))
+(test (filterML list? (MEmpty)) (MEmpty))
+(test (filterML (lambda (x) (not (zero? x))) (MCons 0 (MCons 2 (MCons 0 (MCons 1 (MEmpty))))) (MCons 2 (MCons 1 (MEmpty))))
+(test (filterML (lambda (x) (not (number? x)))number? (MCons 2 (MCons 6456 (MCons -10 (MCons 'z (MCons 30 (MEmpty))))))) (MCons 'z (MEmpty)))
+(test (filterML (lambda (x) (< x 0)) (MCons -2 (MCons .000001 (MCons -1 (MEmpty))))) (MCons -2 (MCons -1 (MEmpty))))
+|#
+
+;Definitions for problems
+(define-type Coordinates
+  [GPS (lat number?)
+       (long number?)])
+
+(define-type Location
+  [building (name string?)
+            (loc GPS?)])
+
+;; Coordenadas GPS
+(define gps-satelite (GPS 19.510482 -99.23411900000002))
+(define gps-ciencias (GPS 19.3239411016 -99.179806709))
+(define gps-zocalo (GPS 19.432721893261117 -99.13332939147949))
+(define gps-perisur (GPS 19.304135 -99.19001000000003))
+
+(define plaza-satelite (building "Plaza Satelite" gps-satelite))
+(define ciencias (building "Facultad de Ciencias" gps-ciencias))
+(define zocalo (building "Zocalo" gps-zocalo))
+(define plaza-perisur (building "Plaza Perisur" gps-perisur))
+
+(define plazas (MCons plaza-satelite (MCons plaza-perisur (MEmpty))))
 
 ;13 haversine
+#|
+(define (haversine coor1 coor2)
+  (define delta-lat (- (get-Lat coor2) (get-Lat (coor1))))
+  (define delta-long (- (get-Long coor2) (get-Long (coor1))))
+  (define a (+ (* (sin (/ delta-lat 2)) (sin (/ delta-lat 2))) (* (cos (get-Lat coor2)) (cos (get-Lat (coor1))) (sin (/ delta-long 2)) (sin (/ delta-long 2)))) )
+  (define c (* 2 (atan (sqrt a) (sqrt (- 1 a))) (atan (sqrt a) (sqrt (- 1 a)))))
+  (* 6378 c)
+  )
 
+(define (get-Lat coor)
+  (type-case Coordinates coor
+    [GPS (la lo) la]
+    ))
 
+(define (get-Long coor)
+  (type-case Coordinates coor
+    [GPS (la lo) lo]
+    ))
+|#
 ;14 gps-coordinates
 
 
