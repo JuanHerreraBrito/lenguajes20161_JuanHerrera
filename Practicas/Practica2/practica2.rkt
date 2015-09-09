@@ -41,12 +41,21 @@
 
 ;Seccion 2: Funciones sobre datos
 
-;6 setvalueA
-#|
+;6 setvalueA Falta concatenar y regresar el MArray
+
 (define (setvalueA arr pos val)
   (type-case Array arr
-    [MArray (n ()) "Error"]))
-|# 
+    [MArray (n lst) (cond
+                   [(empty? lst) lst]
+                   [(= 0 pos) (sust lst val)]
+                   [(> pos 0) (setvalueA (MArray (- n 1) (cdr lst)) (- pos 1) val)]
+                   [else "Error index"])]))
+    
+(define (sust lst val)
+  (cons val (cdr lst)))
+    
+   ; [arr (0 arraux) (sust (car arraaux) val)]
+   ; [arr (n arraux) (setvalueA arraux (- pos 1))]))   
 
 #|
 (test (setvalueA (MArray 1 '(10)) 0 1) (MArray 1 '(1)))
