@@ -20,22 +20,7 @@
 
 
 ;3 NTree
-#|(define-type NTree
-  [TLEmpty]
-  [NodeN (n any/c) ((ListOfNtree? l) List?)])
 
-(define (ListOfNTree? lst)
-  (cond
-    [(empty?) #t]
-    [((car lst) NTree?)]
-   ))
-
-|#
-
-(define-type NTree
-  [TLEmpty]
-  ;[NodeN lista de tlemptys que se llama nnodo o una lista e cosas que se llama nnoden
-  )
 
 
 ;4 Position
@@ -57,7 +42,11 @@
 ;Seccion 2: Funciones sobre datos
 
 ;6 setvalueA
-
+#|
+(define (setvalueA arr pos val)
+  (type-case Array arr
+    [MArray (n ()) "Error"]))
+|# 
 
 #|
 (test (setvalueA (MArray 1 '(10)) 0 1) (MArray 1 '(1)))
@@ -92,10 +81,17 @@
 (test (MArray2MList (MArray 6 '(s f gh 3))) (MCons 's (MCons 'f (MCons 'gh (MCons 3 (MEmpty))))))
 
 ;8 printML
-#|
-(define (printML ml)
-  )
 
+(define (printML ml)
+  (type-case MList ml
+    [MEmpty () "[]"]
+    [else (sacaElem ml)]))
+
+(define (sacaElem mls)
+  (type-case MList mls
+    [MEmpty () empty]
+    [MCons (n ls) (cons n (sacaElem ls))]))
+#|Le falta el formato pero si sirve!!!!!!
 (test (printML (MEmpty)) "[]")
 (test (printML (MCons 1 (MEmpty))) "[7]")
 (test (printML (MCons  100 (MCons  1000 (MEmpty)))) "[100, 1000]")
@@ -118,13 +114,12 @@
                 (MCons 1 (MCons 'b (MCons 2 (MCons 'c (MCons 3 (MCons 'f (MCons 4 (MCons 'h (MEmpty))))))))))
 
 ;10 lengthML
-#|
+
 (define (lengthML  ml)
   (type-case MList ml
-    []
-    []
-  ))
-
+      [MEmpty () 0]
+      [MCons (x xs) (+ 1 (lengthML xs))]))
+#|
 (test (lengthML (MEmpty)) 0)
 (test (lengthML (MCons 100 (MEmpty))) 1)
 (test (lengthML (MCons 'a (MCons 'b (MCons 'c (MEmpty))))) 3)
