@@ -183,14 +183,16 @@
 (define plazas (MCons plaza-satelite (MCons plaza-perisur (MEmpty))))
 
 ;13 haversine
-#|
+
 (define (haversine coor1 coor2)
-  (define delta-lat (- (get-Lat coor2) (get-Lat (coor1))))
-  (define delta-long (- (get-Long coor2) (get-Long (coor1))))
-  (define a (+ (* (sin (/ delta-lat 2)) (sin (/ delta-lat 2))) (* (cos (get-Lat coor2)) (cos (get-Lat (coor1))) (sin (/ delta-long 2)) (sin (/ delta-long 2)))) )
-  (define c (* 2 (atan (sqrt a) (sqrt (- 1 a))) (atan (sqrt a) (sqrt (- 1 a)))))
-  (* 6378 c)
-  )
+  (let ([pi180 (/  pi 180)])
+  (let ([delta-lat (- (* pi180 (get-Lat coor2)) (* pi180 (get-Lat coor1)))])
+  (let ([delta-long (- (* pi180 (get-Long coor2)) (* pi180 (get-Long coor1)))])
+  (let ([a (+ (* (sin (/ delta-lat 2)) (sin (/ delta-lat 2))) (* (cos (* pi180 (get-Lat coor2))) (cos (* pi180 (get-Lat coor1))) (sin (/ delta-long 2)) (sin (/ delta-long 2)))) ])
+  (let ([c (* 2 (atan (sqrt a) (sqrt (- 1 a))) (atan (sqrt a) (sqrt (- 1 a))))])
+  (* 6373 c)
+  ))))))
+
 
 (define (get-Lat coor)
   (type-case Coordinates coor
@@ -201,7 +203,7 @@
   (type-case Coordinates coor
     [GPS (la lo) lo]
     ))
-|#
+
 ;14 gps-coordinates
 
 
