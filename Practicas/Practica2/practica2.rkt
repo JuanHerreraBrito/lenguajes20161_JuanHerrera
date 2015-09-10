@@ -41,14 +41,14 @@
 
 ;Seccion 2: Funciones sobre datos
 
-;6 setvalueA Falta concatenar y regresar el MArray
+;6 setvalueA
 
 (define (setvalueA arr pos val)
   (type-case Array arr
     [MArray (n lst) (cond
                    [(empty? lst) lst]
                    [(= 0 pos) (sust lst val)]
-                   [(> pos 0) (setvalueA (MArray (- n 1) (cdr lst)) (- pos 1) val)]
+                   [(> pos 0) (cons (car lst) (setvalueA (MArray (- n 1) (cdr lst)) (- pos 1) val))]
                    [else "Error index"])]))
     
 (define (sust lst val)
@@ -150,17 +150,17 @@
 (test (mapML not (MCons #t (MCons #f (MCons '#t (MCons #f (MCons #t (MEmpty))))))) (MCons #f (MCons #t (MCons #f (MCons #t (MCons #f (MEmpty)))))))
 
 ;12 filterML
+(define (filterML foo lst)
+  (type-case MList lst
+    [MEmpty () lst]
+    [MCons (e ls) (cond
+                    [(foo e) (MCons e (filterML foo ls))]
+                    [else (filterML foo ls)])]))
 #|
-(define (lengthML  ml)
-  (type-case MList ml
-    []
-    []
-  ))
-
 (test (filterML zero? (MCons 2 (MCons 1 (MEmpty)))) (MEmpty))
 (test (filterML list? (MEmpty)) (MEmpty))
 (test (filterML (lambda (x) (not (zero? x))) (MCons 0 (MCons 2 (MCons 0 (MCons 1 (MEmpty))))) (MCons 2 (MCons 1 (MEmpty))))
-(test (filterML (lambda (x) (not (number? x)))number? (MCons 2 (MCons 6456 (MCons -10 (MCons 'z (MCons 30 (MEmpty))))))) (MCons 'z (MEmpty)))
+(test (filterML (lambda (x) (not (number? x))) (MCons 2 (MCons 6456 (MCons -10 (MCons 'z (MCons 30 (MEmpty))))))) (MCons 'z (MEmpty)))
 (test (filterML (lambda (x) (< x 0)) (MCons -2 (MCons .000001 (MCons -1 (MEmpty))))) (MCons -2 (MCons -1 (MEmpty))))
 |#
 
@@ -218,6 +218,15 @@
 
 
 ;17 area
+(define (area fig)
+  (type-case Figure fig
+    [Circle (a n) (* pi (* n n))]
+    [Square (a n)  (* n n)]
+    [Rectangle (a n m) (* n m)]))
+#|
+
+
+|#     
 
 
 ;18 in-figure?
