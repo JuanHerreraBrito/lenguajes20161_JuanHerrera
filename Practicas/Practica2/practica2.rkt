@@ -230,5 +230,10 @@
 
 
 ;18 in-figure?
-
-
+#|
+(define (in-figure? fig p)
+  (type-case Figure fig
+      [Circle (a n) (< n (sqrt (+ (expt (- (saca-x p) (saca-x a)) 2) ((expt (- (saca-y p) (saca-y a)) 2)))))]
+      [Square (a n)  (and (and (<= (saca-x a) (saca-x p)) (>= (+ (saca-x a) n) (saca-x p))) (and (<= (- (saca-y a) n) (saca-y p)) (>= (saca-y a) (saca-y p))))]
+      [Rectangle (a n m) (* n m)])) 
+|#
