@@ -31,9 +31,9 @@
 
 ;5 Figure
 (define-type Figure
-             [Circle (p 2D-Point?) (n number?)]
-             [Square (p 2D-Point?) (n number?)]
-             [Rectangle (p 2D-Point?) (n number?) (m number?)])
+             [Circle (p Position?) (n number?)]
+             [Square (p Position?) (n number?)]
+             [Rectangle (p Position?) (n number?) (m number?)])
 
 (test (Circle (2D-Point 422 4545) 5) (Circle (2D-Point 422 4545) 5))
 (test (Square (2D-Point 422 4545) 5) (Square (2D-Point 422 4545) 5))
@@ -173,7 +173,7 @@
   [building (name string?)
             (loc GPS?)])
 
-;; Coordenadas GPS
+; Coordenadas GPS
 (define gps-satelite (GPS 19.510482 -99.23411900000002))
 (define gps-ciencias (GPS 19.3239411016 -99.179806709))
 (define gps-zocalo (GPS 19.432721893261117 -99.13332939147949))
@@ -189,14 +189,19 @@
 ;13 haversine
 
 (define (haversine coor1 coor2)
-  (let ([pi180 (/  pi 180)])
-  (let ([delta-lat (- (* pi180 (get-Lat coor2)) (* pi180 (get-Lat coor1)))])
-  (let ([delta-long (- (* pi180 (get-Long coor2)) (* pi180 (get-Long coor1)))])
-  (let ([a (+ (* (sin (/ delta-lat 2)) (sin (/ delta-lat 2))) (* (cos (* pi180 (get-Lat coor2))) (cos (* pi180 (get-Lat coor1))) (sin (/ delta-long 2)) (sin (/ delta-long 2)))) ])
-  (let ([c (* 2 (atan (sqrt a) (sqrt (- 1 a))) (atan (sqrt a) (sqrt (- 1 a))))])
-  (* 6373 c)
-  ))))))
+  (let* ([pi180 (/  pi 180)]
+         [lat2 (* pi180 (get-Lat coor2))]
+         [lat1 (* pi180 (get-Lat coor1))]
+         [long2 (* pi180 (get-Long coor2))]
+         [long1 (* pi180 (get-Long coor1))]
+         [delta-lat (- lat2 lat1)]
+         [delta-long (- long2 long1)]
+         [a (+ (pow2 (sin (/ delta-lat 2))) (* (cos lat1)(cos lat2)(pow2 (sin (/ delta-long 2)))))]
+         [c (* 2 (asin (sqrt a)))])
+         (* 6373 c)))
 
+(define (pow2 x)
+  (* x x))
 
 (define (get-Lat coor)
   (type-case Coordinates coor
@@ -212,7 +217,19 @@
 
 
 ;15 closest-building
+(define (closest-building b ml)
+  (type-case MList ml
+    [MEmpty () ml]
+    [MCons (e ls) (closest-building-extra b ls e)]
+      ))
 
+(define (closest-building-extra b ml win)
+  (type-case MList ml
+    [MEmpty () win]
+    [MCons (e ls) (cond 
+                    [(< (haversine b e) (haversine b win )) (closest-building-extra b ls e)]
+                    [else (closest-building-extra b ls win)]
+                    )]))
 
 ;16 building-at-distance
 
@@ -223,13 +240,10 @@
     [Circle (a n) (* pi (* n n))]
     [Square (a n)  (* n n)]
     [Rectangle (a n m) (* n m)]))
-#|
-
-
-|#     
 
 
 ;18 in-figure?
+
 #|
 (define (in-figure? fig p)
   (type-case Figure fig
@@ -237,3 +251,4 @@
       [Square (a n)  (and (and (<= (saca-x a) (saca-x p)) (>= (+ (saca-x a) n) (saca-x p))) (and (<= (- (saca-y a) n) (saca-y p)) (>= (saca-y a) (saca-y p))))]
       [Rectangle (a n m) (* n m)])) 
 |#
+
