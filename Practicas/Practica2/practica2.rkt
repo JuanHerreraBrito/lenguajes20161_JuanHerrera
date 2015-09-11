@@ -8,7 +8,7 @@
 (define-type Array
   [MArray (n any/c) (lst list?)])
 
-;(test (MArray 5 '(1 2 3 4 5)) (MArray 5 '(1 2 3 4 5)) )
+(test (MArray 5 '(1 2 3 4 5)) (MArray 5 '(1 2 3 4 5)) )
 
 ;2 MList
 (define-type MList
@@ -21,7 +21,23 @@
 
 ;3 NTree
 
+(define-type NTree
+  [TLEmpty]
+  [NodeN (n any/c) (l listOfNTree?) ])
 
+
+(define (listOfNTree? l)
+  (cond
+    [(empty? l) (error 'NotANTree)]
+    [else (listOfNTreeAux? l)]))
+
+(define (listOfNTreeAux? l)
+  (cond
+    [(empty? l) '()]
+    [(NTree? (car l)) (cons (car l) (listOfNTreeAux? (cdr l)))]
+    [else (error 'NotANTree)]))
+
+(test (NodeN 1 (list (TLEmpty) (TLEmpty) (TLEmpty))) (NodeN 1 (list (TLEmpty) (TLEmpty) (TLEmpty))))
 
 ;4 Position
  (define-type Position
@@ -45,25 +61,28 @@
 
 (define (setvalueA arr pos val)
   (type-case Array arr
+    [MArray (n lst) (MArray n (setvalueB arr pos val))]))
+
+
+
+(define (setvalueB arr pos val)
+  (type-case Array arr
     [MArray (n lst) (cond
                    [(empty? lst) lst]
                    [(= 0 pos) (sust lst val)]
-                   [(> pos 0) (cons (car lst) (setvalueA (MArray (- n 1) (cdr lst)) (- pos 1) val))]
+                   [(> pos 0) (cons (car lst) (setvalueB (MArray (- n 1) (cdr lst)) (- pos 1) val))]
                    [else "Error index"])]))
     
 (define (sust lst val)
   (cons val (cdr lst)))
     
-   ; [arr (0 arraux) (sust (car arraaux) val)]
-   ; [arr (n arraux) (setvalueA arraux (- pos 1))]))   
 
-#|
 (test (setvalueA (MArray 1 '(10)) 0 1) (MArray 1 '(1)))
 (test (setvalueA (MArray 6 '(1 2 3 4 5 6)) 4 200) (MArray 6 '(1 2 3 4 200 6)))
 (test (setvalueA (MArray 5 '(z x y w v))  3 'd) (MArray 5 '(z x y d v)))
 (test (setvalueA (MArray 4 '(1 b 3 d))  1 1) (MArray 4 '(1 1 3 d)))
-;(test (setvalueA (MArray 4 '(1 2 3 4)) 4 1) (. . setvalueA: Out of bounds)) Verificar sintaxis
-|#
+(test (setvalueA (MArray 4 '(1 2 3 4)) 3 'b) (MArray 4 '(1 2 3 b)) )
+
 
 ;7 MArray2MList
 (define (MArray2MList ma)
@@ -128,13 +147,13 @@
   (type-case MList ml
       [MEmpty () 0]
       [MCons (x xs) (+ 1 (lengthML xs))]))
-#|
+
 (test (lengthML (MEmpty)) 0)
 (test (lengthML (MCons 100 (MEmpty))) 1)
 (test (lengthML (MCons 'a (MCons 'b (MCons 'c (MEmpty))))) 3)
 (test (lengthML (MCons (MCons 'a (MCons 'b (MCons 'c (MEmpty)))) (MCons 'b (MCons 'c (MEmpty)))) ) 3)
 (test (lengthML (MCons 1 (MCons 2 (MCons 3 (MCons 4 (MCons 5 (MCons 6 (MCons 7 (MCons 8 (MCons 9 (MCons 10 (MCons 11 (MCons 12 (MEmpty)))))))))))))) 12)
-|#
+
 
 ;11 mapML
 
@@ -156,13 +175,13 @@
     [MCons (e ls) (cond
                     [(foo e) (MCons e (filterML foo ls))]
                     [else (filterML foo ls)])]))
-#|
+
 (test (filterML zero? (MCons 2 (MCons 1 (MEmpty)))) (MEmpty))
 (test (filterML list? (MEmpty)) (MEmpty))
-(test (filterML (lambda (x) (not (zero? x))) (MCons 0 (MCons 2 (MCons 0 (MCons 1 (MEmpty))))) (MCons 2 (MCons 1 (MEmpty))))
+(test (filterML (lambda (x) (not (zero? x))) (MCons 0 (MCons 2 (MCons 0 (MCons 1 (MEmpty)))))) (MCons 2 (MCons 1 (MEmpty))))
 (test (filterML (lambda (x) (not (number? x))) (MCons 2 (MCons 6456 (MCons -10 (MCons 'z (MCons 30 (MEmpty))))))) (MCons 'z (MEmpty)))
 (test (filterML (lambda (x) (< x 0)) (MCons -2 (MCons .000001 (MCons -1 (MEmpty))))) (MCons -2 (MCons -1 (MEmpty))))
-|#
+
 
 ;Definitions for problems
 (define-type Coordinates
@@ -198,7 +217,7 @@
          [delta-long (- long2 long1)]
          [a (+ (pow2 (sin (/ delta-lat 2))) (* (cos lat1)(cos lat2)(pow2 (sin (/ delta-long 2)))))]
          [c (* 2 (asin (sqrt a)))])
-         (* 6373 c)))
+         (* 6371 c)))
 
 (define (pow2 x)
   (* x x))
@@ -212,6 +231,10 @@
   (type-case Coordinates coor
     [GPS (la lo) lo]
     ))
+
+(test (haversine gps-ciencias gps-zocalo) 13.033)
+(test (haversine gps-ciencias gps-perisur) 2.447)
+(test (haversine gps-satelite gps-perisur) 23.406)
 
 ;14 gps-coordinates
 
@@ -237,18 +260,6 @@
     [MEmpty () win]
     [MCons (e ls) (if (< (haversine (getGPS b) (getGPS e)) (haversine (getGPS b) (getGPS win) )) (closest-building-extra b ls e)
                       (closest-building-extra b ls win))]))
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 ;16 building-at-distance
