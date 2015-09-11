@@ -235,6 +235,8 @@
 (test (haversine gps-ciencias gps-zocalo) 13.033)
 (test (haversine gps-ciencias gps-perisur) 2.447)
 (test (haversine gps-satelite gps-perisur) 23.406)
+(test (haversine gps-zocalo gps-perisur) 15.485)
+(test (haversine gps-satelite gps-zocalo) 13.653)
 
 ;14 gps-coordinates
 
@@ -247,6 +249,9 @@
 (define (getGPS b)
   (type-case Location b
     [building (na loc) loc]))
+
+(test (gps-coordinates (MEmpty)) (MEmpty))
+(test (gps-coordinates plazas) (MCons (GPS 19.510482 -99.23411900000002)(MCons (GPS 19.304135 -99.19001000000003) (MEmpty))))
 
 ;15 closest-building
 (define (closest-building b ml)
@@ -261,16 +266,25 @@
     [MCons (e ls) (if (< (haversine (getGPS b) (getGPS e)) (haversine (getGPS b) (getGPS win) )) (closest-building-extra b ls e)
                       (closest-building-extra b ls win))]))
 
+(test (closest-building zocalo plazas) (building "Plaza Satelite" (GPS 19.510482 -99.23411900000002)))
+(test (closest-building ciencias plazas) (building "Plaza Perisur" (GPS 19.304135 -99.19001000000003)))
+(test (closest-building plaza-perisur plazas) (building "Plaza Perisur" (GPS 19.304135 -99.19001000000003)))  
+(test (closest-building plaza-satelite plazas) (building "Plaza Satelite" (GPS 19.510482 -99.23411900000002)))
 
 ;16 building-at-distance
-(define (building-at-distance bu lst dis)
+(define (buildings-at-distance bu lst dis)
   (type-case MList lst
-        [MEmpty () '()]
+        [MEmpty () (MEmpty)]
         [MCons (e ls) (cond
-                        [(< (haversine bu e) dis) (MCons e (building-at-distance bu ls dis))]
-                        [else (building-at-distance bu ls dis)])]))
+                        [(< (haversine (getGPS bu) (getGPS e)) dis) (MCons e (buildings-at-distance bu ls dis))]
+                        [else (buildings-at-distance bu ls dis)])]))
 
 
+(test (buildings-at-distance ciencias plazas 1) (MEmpty))
+(test (buildings-at-distance plaza-perisur (MCons ciencias plazas) 3) (MCons (building "Facultad de Ciencias" (GPS 19.3239411016 -99.179806709)) (MCons (building "Plaza Perisur" (GPS 19.304135 -99.19001000000003)) (MEmpty))))
+(test (buildings-at-distance ciencias plazas 10) (MCons (building "Plaza Perisur" (GPS 19.304135 -99.19001000000003)) (MEmpty)))
+(test (buildings-at-distance ciencias plazas 20) (MCons (building "Plaza Perisur" (GPS 19.304135 -99.19001000000003)) (MEmpty)))
+(test (buildings-at-distance ciencias plazas 25) (MCons (building "Plaza Satelite" (GPS 19.510482 -99.23411900000002)) (MCons (building "Plaza Perisur" (GPS 19.304135 -99.19001000000003)) (MEmpty))))
 
 ;17 area
 (define (area fig)
@@ -279,6 +293,11 @@
     [Square (a n)  (* n n)]
     [Rectangle (a n m) (* n m)]))
 
+(test (area (Square (2D-Point 0 0) 10)) 100)
+(test (area (Circle (2D-Point 5 5) 4)) 50.26548245743669)
+(test (area (Rectangle (2D-Point 0 0) 10 2)) 20)
+(test (area (Square (2D-Point 0 0) 7)) 49)
+(test (area (Circle (2D-Point 0 0) 1)) 3.1415)
 
 ;18 in-figure?
 (define (in-figure? fig p)
@@ -303,3 +322,9 @@
 (define (saca-y pun)
   (type-case Position pun
     [2D-Point (x y) y]))
+
+(test (in-figure? (Square (2D-Point 5 5) 4) (2D-Point 6 6)) #t)
+(test (in-figure? (Rectangle (2D-Point 5 5) 4 6) (2D-Point 4 4)) #f)
+;(test )
+;(test )
+;(test )
