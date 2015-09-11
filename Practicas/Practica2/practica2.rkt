@@ -215,6 +215,15 @@
 
 ;14 gps-coordinates
 
+(define (gps-coordinates ml)
+ (type-case MList ml
+  [MEmpty () ml]
+  [MCons (e ls) (MCons (getGPS e) (gps-coordinates ls))]))
+
+
+(define (getGPS b)
+  (type-case Location b
+    [building (na loc) loc]))
 
 ;15 closest-building
 (define (closest-building b ml)
@@ -226,10 +235,8 @@
 (define (closest-building-extra b ml win)
   (type-case MList ml
     [MEmpty () win]
-    [MCons (e ls) (cond 
-                    [(< (haversine b e) (haversine b win )) (closest-building-extra b ls e)]
-                    [else (closest-building-extra b ls win)]
-                    )]))
+    [MCons (e ls) (if (< (haversine (getGPS b) (getGPS e)) (haversine (getGPS b) (getGPS win) )) (closest-building-extra b ls e)
+                      (closest-building-extra b ls win))]))
 
 ;16 building-at-distance
 
