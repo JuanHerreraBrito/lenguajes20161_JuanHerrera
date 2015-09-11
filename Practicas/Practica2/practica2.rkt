@@ -231,20 +231,14 @@
                     [else (closest-building-extra b ls win)]
                     )]))
 
-
-
-
-
-
-
-
-
-
-
-
-
-
 ;16 building-at-distance
+(define (building-at-distance bu lst dis)
+  (type-case MList lst
+        [MEmpty () '()]
+        [MCons (e ls) (cond
+                        [(< (haversine bu e) dis) (MCons e (building-at-distance bu ls dis))]
+                        [else (building-at-distance bu ls dis)])]))
+
 
 
 ;17 area
@@ -256,18 +250,12 @@
 
 
 ;18 in-figure?
-<<<<<<< HEAD
-=======
 
-#|
->>>>>>> 8cc0bebafd035e52868c10282eb79d2f28a29141
 (define (in-figure? fig p)
   (type-case Figure fig
-      [Circle (a n) (< n (sqrt (+ (expt (- (saca-x p) (saca-x a)) 2) ((expt (- (saca-y p) (saca-y a)) 2)))))]
+      [Circle (a n) (< (sqrt (+ (expt (- (saca-x p) (saca-x a)) 2) ((expt (- (saca-y p) (saca-y a)) 2)))) n)]
       [Square (a n)  (and (and (<= (saca-x a) (saca-x p)) (>= (+ (saca-x a) n) (saca-x p))) (and (<= (- (saca-y a) n) (saca-y p)) (>= (saca-y a) (saca-y p))))]
       [Rectangle (a n m) (* n m)])) 
-<<<<<<< HEAD
-
 
 (define (saca-x pun)
   (type-case Position pun
@@ -276,7 +264,3 @@
 (define (saca-y pun)
   (type-case Position pun
     [2D-Point (x y) y]))
-=======
-|#
-
->>>>>>> 8cc0bebafd035e52868c10282eb79d2f28a29141
