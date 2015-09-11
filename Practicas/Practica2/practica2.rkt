@@ -238,7 +238,27 @@
     [MCons (e ls) (if (< (haversine (getGPS b) (getGPS e)) (haversine (getGPS b) (getGPS win) )) (closest-building-extra b ls e)
                       (closest-building-extra b ls win))]))
 
+
+
+
+
+
+
+
+
+
+
+
+
+
 ;16 building-at-distance
+(define (building-at-distance bu lst dis)
+  (type-case MList lst
+        [MEmpty () '()]
+        [MCons (e ls) (cond
+                        [(< (haversine bu e) dis) (MCons e (building-at-distance bu ls dis))]
+                        [else (building-at-distance bu ls dis)])]))
+
 
 
 ;17 area
@@ -250,12 +270,25 @@
 
 
 ;18 in-figure?
-
-#|
 (define (in-figure? fig p)
   (type-case Figure fig
       [Circle (a n) (< n (sqrt (+ (expt (- (saca-x p) (saca-x a)) 2) ((expt (- (saca-y p) (saca-y a)) 2)))))]
-      [Square (a n)  (and (and (<= (saca-x a) (saca-x p)) (>= (+ (saca-x a) n) (saca-x p))) (and (<= (- (saca-y a) n) (saca-y p)) (>= (saca-y a) (saca-y p))))]
-      [Rectangle (a n m) (* n m)])) 
-|#
+      [Square (a n)  (inRectangule (saca-x a) (saca-y a) n n (saca-x p) (saca-y p))]
+      [Rectangle (a n m) (inRectangule (saca-x a) (saca-y a) n m (saca-x p) (saca-y p))]))
 
+
+
+(define (inRectangule p1x p1y a l p2x p2y)
+  (cond 
+    [(or (< p2x p1x) (< p2y p1y ) ) #f ]
+    [(and (<= p2x (+ p1x a)) (<= p2y (+ p1y l)) ) #t]
+    [else #f]))
+
+
+(define (saca-x pun)
+  (type-case Position pun
+    [2D-Point (x y) x]))
+
+(define (saca-y pun)
+  (type-case Position pun
+    [2D-Point (x y) y]))
