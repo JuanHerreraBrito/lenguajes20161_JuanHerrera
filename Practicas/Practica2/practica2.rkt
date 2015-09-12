@@ -341,7 +341,9 @@
     [else #f]))
 
 (define (dist a b)
-  [(sqrt (+ (expt (- (saca-x b) (saca-x a)) 2) (expt (- (saca-y b) (saca-y a)) 2)))])
+    (cond
+      [(not (and (2D-Point? a) (2D-Point? a))) "Error"]
+      [else (sqrt (+ (expt (- (saca-x b) (saca-x a)) 2) (expt (- (saca-y b) (saca-y a)) 2)))]))
 
 
 (define (saca-x pun)
