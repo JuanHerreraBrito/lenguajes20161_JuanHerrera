@@ -250,9 +250,31 @@
   (type-case Location b
     [building (na loc) loc]))
 
+(define gps-mi-casa (GPS 25.25547 -2.457000568))
+(define gps-ingenieria (GPS 11.46548646541 -99.456846548))
+(define gps-conagua (GPS 12.0000245 -97.2350012458))
+(define gps-gransur (GPS 19.304135 -100.5468548654))
+(define gps-metro-universidad (GPS 23.564588 -89.2335644478))
+(define gps-tienda (GPS 10.256484 -82.225644485))
+
+(define mi-casa (building "Mi Casa" gps-mi-casa))
+(define ingenieria (building "Facultad de Igenieria" gps-ingenieria))
+(define conagua (building "Conagua" gps-conagua))
+(define plaza-gransur (building "Plaza GranSur" gps-gransur))
+(define metro (building "Metro Universidad" gps-metro-universidad))
+(define tienda (building "Tienda" gps-tienda))
+
+
+(define escuelas (MCons ciencias (MCons ingenieria (MEmpty))))
+(define edificios (MCons mi-casa(MCons tienda (MCons conagua (MEmpty)))))
+
+
+
 (test (gps-coordinates (MEmpty)) (MEmpty))
 (test (gps-coordinates plazas) (MCons (GPS 19.510482 -99.23411900000002)(MCons (GPS 19.304135 -99.19001000000003) (MEmpty))))
-
+(test (gps-coordinates escuelas) (MCons (GPS 19.3239411016 -99.179806709) (MCons (GPS 11.46548646541 -99.456846548) (MEmpty))))
+(test (gps-coordinates edificios) (MCons (GPS 25.25547 -2.457000568) (MCons (GPS 10.256484 -82.225644485) (MCons (GPS 12.0000245 -97.2350012458) (MEmpty)))))
+(test (gps-coordinates (MCons metro (MEmpty))) (MCons (GPS 23.564588 -89.2335644478) (MEmpty)))
 ;15 closest-building
 (define (closest-building b ml)
   (type-case MList ml
@@ -270,7 +292,7 @@
 (test (closest-building ciencias plazas) (building "Plaza Perisur" (GPS 19.304135 -99.19001000000003)))
 (test (closest-building plaza-perisur plazas) (building "Plaza Perisur" (GPS 19.304135 -99.19001000000003)))  
 (test (closest-building plaza-satelite plazas) (building "Plaza Satelite" (GPS 19.510482 -99.23411900000002)))
-
+(test (closest-building mi-casa escuelas) (building "Facultad de Ciencias" (GPS 19.3239411016 -99.179806709)))
 ;16 building-at-distance
 (define (buildings-at-distance bu lst dis)
   (type-case MList lst
@@ -302,7 +324,7 @@
 ;18 in-figure?
 (define (in-figure? fig p)
   (type-case Figure fig
-      [Circle (a n) (< n (sqrt (+ (expt (- (saca-x p) (saca-x a)) 2) ((expt (- (saca-y p) (saca-y a)) 2)))))]
+      [Circle (a n) (inCircle p a n)]
       [Square (a n)  (inRectangule (saca-x a) (saca-y a) n n (saca-x p) (saca-y p))]
       [Rectangle (a n m) (inRectangule (saca-x a) (saca-y a) n m (saca-x p) (saca-y p))]))
 
@@ -313,6 +335,15 @@
     [(or (< p2x p1x) (< p2y p1y ) ) #f ]
     [(and (<= p2x (+ p1x a)) (<= p2y (+ p1y l)) ) #t]
     [else #f]))
+(define (inCircle can orig rad)
+  (cond
+    [(<= (dist can orig) rad) #t]
+    [else #f]))
+
+(define (dist a b)
+    (cond
+      [(not (and (2D-Point? a) (2D-Point? a))) "Error"]
+      [else (sqrt (+ (expt (- (saca-x b) (saca-x a)) 2) (expt (- (saca-y b) (saca-y a)) 2)))]))
 
 
 (define (saca-x pun)
@@ -325,6 +356,6 @@
 
 (test (in-figure? (Square (2D-Point 5 5) 4) (2D-Point 6 6)) #t)
 (test (in-figure? (Rectangle (2D-Point 5 5) 4 6) (2D-Point 4 4)) #f)
-;(test )
-;(test )
-;(test )
+(test (in-figure? (Circle (2D-Point 0 0) 20) (2D-Point 22 25)) #f)
+(test (in-figure? (Circle (2D-Point 300 20) 1) (2D-Point 300 19.5)) #t)
+(test (in-figure? (Square (2D-Point 0 0) 4) (2D-Point 0 12)) #f)
