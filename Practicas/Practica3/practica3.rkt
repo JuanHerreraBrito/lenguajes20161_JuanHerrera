@@ -25,7 +25,15 @@
 (define my-zones (zones 50 180))
 
 ;2 get-zone
-(define (get-zone t z) )
+(define (get-zone t z)
+  (cond
+    [(equal? t 'resting) (car z)]
+    [(equal? t 'warm-up) (cadr z)]
+    [(equal? t 'fat-burning) (caddr z)]
+    [(equal? t 'aerobic) (cadddr z)]
+    [(equal? t 'anaerobic) (car(cddddr z))]
+    [(equal? t 'maximum) (cdr(cddddr z))]))
+    
 
 ;3 bpm->zone
 (define (bpm->zone fcl z) #t)
