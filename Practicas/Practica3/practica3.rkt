@@ -40,6 +40,16 @@
     [anaerobic (l r) 'anaerobic]
     [maximum (l r) 'maximum]))
 
+;(define (get-zone t z)
+;  (cond
+;    [(equal? t 'resting) (car z)]
+;    [(equal? t 'warm-up) (cadr z)]
+;    [(equal? t 'fat-burning) (caddr z)]
+;    [(equal? t 'aerobic) (cadddr z)]
+;    [(equal? t 'anaerobic) (car(cddddr z))]
+;    [(equal? t 'maximum) (cdr(cddddr z))]))
+    
+
 
 ;3 bpm->zone
 (define (bpm->zone fcl z)
