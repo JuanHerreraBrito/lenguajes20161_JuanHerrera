@@ -25,11 +25,45 @@
 (define my-zones (zones 50 180))
 
 ;2 get-zone
-(define (get-zone t z) )
+(define (get-zone t z) 
+  (cond
+    [(empty? z) error "no se encontraron zonas"]
+    [(equal? (HR-type (car z)) t) (car z)]
+    [else (get-zone t (cdr z))]))
+
+(define (HR-type exp)
+  (type-case HRZ exp
+    [resting (l r) 'resting]
+    [warm-up (l r) 'warm-up]
+    [fat-burning (l r) 'fat-burning]
+    [aerobic (l r) 'aerobic]
+    [anaerobic (l r) 'anaerobic]
+    [maximum (l r) 'maximum]))
+
 
 ;3 bpm->zone
-(define (bpm->zone fcl z) #t)
-
+(define (bpm->zone fcl z)
+  (cond
+    [(empty? fcl) '()]
+    [else (cons (zone-in (car fcl) z) (bpm->zone (cdr fcl) z))]))
+    
+(define (zone-in n z)
+  (cond 
+    [(empty? z) error "no se encuentra en las zonas"]
+    [(in-rate? (car z) n) (car z)]
+    [else (zone-in n (cdr z))]))
+  
+(define (in-rate? exp n)
+  (type-case HRZ exp
+    [resting (l r) (cond 
+                     [(and (<= l n) (>= r n)) #t]
+                     [else #f])]
+    [warm-up (l r) (if (and (<= l n) (>= r n)) #t #f)]
+    [fat-burning (l r) (if (and (<= l n) (>= r n)) #t #f)]
+    [aerobic (l r) (if (and (<= l n) (>= r n)) #t #f)]
+    [anaerobic (l r) (if (and (<= l n) (>= r n)) #t #f)]
+    [maximum (l r) (if (and (<= l n) (>= r n)) #t #f)])) 
+  
 ;4 create-trackpoints
 (define (create-trackpoint ls z) #t)
 
