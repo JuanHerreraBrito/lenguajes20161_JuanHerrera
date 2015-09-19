@@ -3,6 +3,8 @@
 (require "practica3-base.rkt")
 
 
+
+
 ;1 zones
 (define (zones n m)
   (cons (resting n (+ n (* (- m n) 0.5) -1)) (zonesAux n m (- m n) 0)))
@@ -74,34 +76,105 @@
     [anaerobic (l r) (if (and (<= l n) (>= r n)) #t #f)]
     [maximum (l r) (if (and (<= l n) (>= r n)) #t #f)])) 
   
+
 ;4 create-trackpoints
-(define (create-trackpoint ls z) #t)
+(define (create-trackpoints ls z) 
+  (cond 
+    [(empty? ls) '()]
+    [else (cons (trackpoint (GPS (first (cadr (car ls))) (second (cadr (car ls)))) (third (car ls)) (car (bpm->zone (list (caddr (car ls))) z)) (car (car ls))) (create-trackpoints (cdr ls) z))]))
 
 ;5 total-distance
-(define (total-distance tl) #t)
+(define (total-distance tl)
+  (cond
+    [(empty? tl) 0]
+    [(empty? (cdr tl)) 0]
+    [else (+ (haversine (get-loc-tp (car tl)) (get-loc-tp (cadr tl))) (total-distance (cdr tl)))]))
+
+(define (get-loc-tp exp)
+  (type-case Frame exp
+    [trackpoint (l h z u) l]))
+
+(define (haversine coor1 coor2)
+  (let* ([pi180 (/  pi 180)]
+         [lat2 (* pi180 (get-Lat coor2))]
+         [lat1 (* pi180 (get-Lat coor1))]
+         [long2 (* pi180 (get-Long coor2))]
+         [long1 (* pi180 (get-Long coor1))]
+         [delta-lat (- lat2 lat1)]
+         [delta-long (- long2 long1)]
+         [a (+ (pow2 (sin (/ delta-lat 2))) (* (cos lat1)(cos lat2)(pow2 (sin (/ delta-long 2)))))]
+         [c (* 2 (asin (sqrt a)))])
+         (* 6371 c)))
+
+(define (pow2 x)
+  (* x x))
+
+(define (get-Lat coor)
+  (type-case Coordinate coor
+    [GPS (la lo) la]
+    ))
+
+(define (get-Long coor)
+  (type-case Coordinate coor
+    [GPS (la lo) lo]
+    ))
+
 
 ;6 average-hr
-(define (average-hr tl) #t)
+(define (average-hr tl)
+  (truncate (/ (average-hr-aux tl) (length tl))))
+
+(define (get-hr-tp exp)
+  (type-case Frame exp
+    [trackpoint (l h z u) h]))
+
+(define (average-hr-aux tl)
+  (cond
+    [(empty? tl) 0]
+    [else (+ (get-hr-tp (car tl)) (average-hr-aux (cdr tl)))]))
 
 ;7 max-hr
-(define (max-hr tl) #t)
+(define (max-hr tl) 
+  (cond 
+    [(empty? tl) 0]
+    [else (max (get-hr-tp (car tl)) (max-hr (cdr tl)))]))
 
 ; 8 collapse-trackpoints
-(define (collapse-trackpoints tl e) #t)
+(define (collapse-trackpoints tl e) #f)
 
 ;BTree
 ; 1 ninBT
-(define (ninBT bt) #t)
+(define (ninBT bt) 
+  (type-case BTree bt
+    [EmptyBT () 0]
+    [BNode (f l v r) (cond
+                       [(and (empty-sonBT? l) (empty-sonBT? r)) 0]
+                       [else (+ 1 (ninBT l) (ninBT r))])]))
+
+(define (empty-sonBT? bt) 
+  (type-case BTree bt
+    [EmptyBT () #t]
+    [BNode (f l v r) #f]))
 
 ; 2 nlBT
-(define (nlBT bt) #t)
+(define (nlBT bt)
+    (type-case BTree bt
+      [EmptyBT () 0]
+      [BNode (f l v r) (cond
+                         [(and (empty-sonBT? l) (empty-sonBT? r)) 1]
+                         [else (+ 0 (nlBT l) (nlBT r))])]))
 
 ; 3 nnBT
-(define (nnBT bt) #t)
-
+(define (nnBT bt) 
+  (type-case BTree bt
+    [EmptyBT () 0]
+    [BNode (f l v r) (+ 1 (nnBT l) (nnBT r))]))
+  
 ; 4 mapBT
-(define (mapBT foo bt) #t)
-
+(define (mapBT foo bt)
+  (type-case BTree bt
+    [EmptyBT () (EmptyBT)]
+    [BNode (f l v r) (BNode f (mapBT foo l) (foo v) (mapBT foo r))]))
 
 ; arbol base
 ; 1 preoderBT
