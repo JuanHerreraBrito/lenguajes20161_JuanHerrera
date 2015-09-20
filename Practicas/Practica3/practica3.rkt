@@ -2,9 +2,6 @@
 
 (require "practica3-base.rkt")
 
-
-
-
 ;1 zones
 (define (zones n m)
   (cons (resting n (+ n (* (- m n) 0.5) -1)) (zonesAux n m (- m n) 0)))
@@ -41,17 +38,6 @@
     [aerobic (l r) 'aerobic]
     [anaerobic (l r) 'anaerobic]
     [maximum (l r) 'maximum]))
-
-;(define (get-zone t z)
-;  (cond
-;    [(equal? t 'resting) (car z)]
-;    [(equal? t 'warm-up) (cadr z)]
-;    [(equal? t 'fat-burning) (caddr z)]
-;    [(equal? t 'aerobic) (cadddr z)]
-;    [(equal? t 'anaerobic) (car(cddddr z))]
-;    [(equal? t 'maximum) (cdr(cddddr z))]))
-    
-
 
 ;3 bpm->zone
 (define (bpm->zone fcl z)
@@ -140,7 +126,23 @@
     [else (max (get-hr-tp (car tl)) (max-hr (cdr tl)))]))
 
 ; 8 collapse-trackpoints
-(define (collapse-trackpoints tl e) #f)
+(define (collapse-trackpoints tl e)
+  (cond
+    [(empty? tl) '()]
+    [else (collapse-trackpoints-aux (car tl) (cdr tl) e (distance-trackpoints tl))]))
+
+(define (collapse-trackpoints-aux elem tl e dl)
+  (cond
+    [(empty? tl) (list elem)]
+    [(and (< (car dl) e) (equal? (get-hr-tp elem) (get-hr-tp (car tl)))) (collapse-trackpoints-aux (car tl) (cdr tl) e (cdr dl))]
+    [else (cons elem (collapse-trackpoints-aux (car tl) (cdr tl) e (cdr dl)))]))
+
+
+(define (distance-trackpoints tl)
+  (cond
+    [(empty? tl) '()]
+    [(empty? (cdr tl)) '()]
+    [else (cons (haversine (get-loc-tp (car tl)) (get-loc-tp (cadr tl))) (distance-trackpoints (cdr tl)))]))
 
 ;BTree
 ; 1 ninBT
@@ -178,10 +180,20 @@
 
 ; arbol base
 ; 1 preoderBT
-(define (preoderBT ab) #t)
+(define (preorderBT ab)
+  (type-case BTree ab
+    [EmptyBT () '()]
+    [BNode (f l v r) (cons v (append (preorderBT l) (preorderBT r)))]))
 
 ; 2 inorderBT
-(define (inorderBT ab) #t)
+(define (inorderBT ab)
+  (type-case BTree ab
+    [EmptyBT () '()]
+    [BNode (f l v r) (append (inorderBT l) (cons v (inorderBT r)))]))
+
 
 ; 3 posorderBT
-(define (posorderBT ab) #t)
+(define (posorderBT ab)
+  (type-case BTree ab
+    [EmptyBT () '()]
+    [BNode (f l v r) (append (posorderBT l) (posorderBT r) (list v))]))
