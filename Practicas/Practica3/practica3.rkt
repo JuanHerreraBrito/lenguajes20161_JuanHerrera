@@ -239,11 +239,23 @@
                          [(and (empty-sonBT? l) (empty-sonBT? r)) 1]
                          [else (+ 0 (nlBT l) (nlBT r))])]))
 
+(test (nlBT tree-1) 1)
+(test (nlBT tree-2) 2)
+(test (nlBT tree-3) 4)
+(test (nlBT tree-4) 1)
+(test (nlBT tree-5) 6)
+
+
 ; 3 nnBT
 (define (nnBT bt) 
   (type-case BTree bt
     [EmptyBT () 0]
     [BNode (f l v r) (+ 1 (nnBT l) (nnBT r))]))
+(test (nnBT tree-1) 1)
+(test (nnBT tree-2) 3)
+(test (nnBT tree-3) 7)
+(test (nnBT tree-4) 1)
+(test (nnBT tree-5) 13)
   
 ; 4 mapBT
 (define (mapBT foo bt)
@@ -251,6 +263,12 @@
     [EmptyBT () (EmptyBT)]
     [BNode (f l v r) (BNode f (mapBT foo l) (foo v) (mapBT foo r))]))
 
+(test (mapBT (lambda (x) (EmptyBT? x)) tree-1) (bnn ebt #t ebt))
+(test (mapBT (lambda (x) (+ x x)) tree-2) (bnn (bnn ebt 4 ebt) 2 (bnn ebt 6 ebt)))
+
+(test (mapBT (lambda (x) (expt x 0)) tree-3) (bnn (bnn (bnn ebt 1 ebt) 1 (bnn ebt 1 ebt)) 1 (bnn (bnn ebt 1 ebt) 1 (bnn ebt 1 ebt))))
+(test (mapBT (lambda (x) (number? x)) tree-4) (bnn ebt #t ebt))
+(test (mapBT (lambda (x) (* x 10)) tree-2) (bnn (bnn ebt 20 ebt) 10 (bnn ebt 30 ebt)))
 ; arbol base
 ; 1 preoderBT
 (define (preorderBT ab)
@@ -258,12 +276,23 @@
     [EmptyBT () '()]
     [BNode (f l v r) (cons v (append (preorderBT l) (preorderBT r)))]))
 
+(test (preorderBT tree-1) (list (EmptyBT)))
+(test (preorderBT tree-2) '(1 2 3))
+(test (preorderBT tree-3) '(3 10 9 15 7 1 12))
+(test (preorderBT tree-4) '(9))
+(test (preorderBT tree-5) '(1 5 4 6 7 8 3 10 9 15 7 1 12))
+
 ; 2 inorderBT
 (define (inorderBT ab)
   (type-case BTree ab
     [EmptyBT () '()]
     [BNode (f l v r) (append (inorderBT l) (cons v (inorderBT r)))]))
 
+(test (inorderBT tree-1) (list (EmptyBT)))
+(test (inorderBT tree-2) '(2 1 3))
+(test (inorderBT tree-3) '(9 10 15 3 1 7 12))
+(test (inorderBT tree-4) '(9))
+(test (inorderBT tree-5) '(4 5 6 7 8 1 9 10 15 3 1 7 12))
 
 ; 3 posorderBT
 (define (posorderBT ab)
@@ -271,4 +300,8 @@
     [EmptyBT () '()]
     [BNode (f l v r) (append (posorderBT l) (posorderBT r) (list v))]))
 
-;(printBT (bnn (bnn (bnn (bnn ebt 4 ebt) 5 (bnn ebt 6 (bnn ebt 7 (bnn ebt 8 ebt)))) 1 (bnn ebt 3 ebt)))
+(test (posorderBT tree-1) (list (EmptyBT)))
+(test (posorderBT tree-2) '(2 3 1))
+(test (posorderBT tree-3) '(9 15 10 1 12 7 3))
+(test (posorderBT tree-4) '(9))
+(test (posorderBT tree-5) '(4 8 7 6 5 9 15 10 1 12 7 3 1))
