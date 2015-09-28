@@ -6,9 +6,17 @@
 
 (define (desugar expr)
   ;; Implementar desugar
-  (error 'desugar "Not implemented"))
+  (type-case FAES expr
+    [numS (n) (num n)]
+    [withS (bind body) (app (fun (car bind) (desugar body))
+                                (desugar (cdr bind)))]
+    [with*S (list-bind body) "Hacer app fun con el primer bind y desugar sobre el with sin el car del bid"]
+    [idS (s) (id s)]
+    [funS (p b) "fun"]
+    [appS (f e) "app"]
+    [binopS (op l r) (op (desugar l) (desugar r))]))
 
-
+#|
 (test (desugar (parse '{+ 3 4})) (binop + (num 3) (num 4)))
 (test (desugar (parse '{+ {- 3 4} 7})) (binop + (binop - (num 3) (num 4)) (num 7)))
 (test (desugar (parse '{with {{x {+ 5 5}}} x})) (app (fun '(x) (id 'x)) (list (binop + (num 5) (num 5))) ))
@@ -44,4 +52,4 @@
 (test (rinterp (cparse '{with* {{x 3} {y {+ 2 x}} {z {+ x y}}} z})) (numV 8))
 (test (rinterp (cparse '{with* {{x 3} {y {+ 2 x}} {x 10} {z {+ x y}}} z})) (numV 15))
 (test/exn (rinterp (cparse '{with {{x 10} {x 20}} x})) "El id x está repetido")
-(test (rinterp (cparse '{with* {{x 10} {x 20}} x})) (numV 20))
+(test (rinterp (cparse '{with* {{x 10} {x 20}} x})) (numV 20))|#
