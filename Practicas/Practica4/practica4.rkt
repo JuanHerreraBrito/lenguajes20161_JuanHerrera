@@ -8,19 +8,34 @@
   ;; Implementar desugar
   (type-case FAES expr
     [numS (n) (num n)]
-    [withS (bind body) (app (fun (car bind) (desugar body))
-                                (desugar (cdr bind)))]
-    [with*S (list-bind body) "Hacer app fun con el primer bind y desugar sobre el with sin el car del bid"]
+    [withS (bind body) (app (fun (list (get-name (car bind))) (desugar body))
+                                (list (desugar (get-value (car bind)))))]
+    [with*S (list-bind body) (app (fun (map get-name list-bind) (desugar body))
+                                (map desugar (map get-value list-bind)))]
     [idS (s) (id s)]
-    [funS (p b) "fun"]
-    [appS (f e) "app"]
-    [binopS (op l r) (op (desugar l) (desugar r))]))
+    [funS (p b) (fun p (desugar b))]
+    [appS (f e) (app (desugar f) (map desugar e))]
+    [binopS (op l r) (binop op (desugar l) (desugar r))]))
 
-#|
+(define (get-name bd)
+  (type-case Binding bd
+    [bind (n v) n]))
+
+(define (get-value bd)
+  (type-case Binding bd
+    [bind (n v) v]))
+
 (test (desugar (parse '{+ 3 4})) (binop + (num 3) (num 4)))
 (test (desugar (parse '{+ {- 3 4} 7})) (binop + (binop - (num 3) (num 4)) (num 7)))
 (test (desugar (parse '{with {{x {+ 5 5}}} x})) (app (fun '(x) (id 'x)) (list (binop + (num 5) (num 5))) ))
+(test (desugar (parse '(fun (x) x))) (fun '(x) (id 'x)))
+(test (desugar (parse '(fun (x y z) x))) (fun '(x y z) (id 'x)))
+(test (desugar (parse '((fun (x y z) x) 5 6))) (app (fun '(x y z) (id 'x)) (list (num 5) (num 6))))
+(test (desugar (parse '{with* {{x {+ 5 5}} {y 2}} {* x y}})) (app (fun '(x y) (binop * (id 'x) (id 'y))) (list (binop + (num 5) (num 5)) (num 2)) ))
+(test (desugar (parse '{with* {{x 3} {y {+ 2 x}} {z {+ x y}}} z}))  (app (fun '(x y z) (id 'z)) (list (num 3) (binop + (num 2) (id 'x)) (binop + (id 'x) (id 'y)))) )
 
+
+#|
 (define (cparse sexp)
   (desugar (parse sexp)))
 
