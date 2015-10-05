@@ -18,3 +18,11 @@ el caso cuando tienen listas MCons anidadas.
 Les estoy contando su punto extra.
 
 **Calificación: 10.5**
+
+### Practica 3
+Muy bien, solamente no commenten sus lineas de prueba
+mas bien usen la función
+
+(print-only-errors true)
+
+**Calificación: 10**
