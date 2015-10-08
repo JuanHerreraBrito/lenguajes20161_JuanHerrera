@@ -4,14 +4,14 @@
 
 (print-only-errors true)
 
+
 (define (desugar expr)
   (type-case FAES expr
     [numS (n) (num n)]
     [withS (list-bind body) (app (fun (map get-name list-bind) (desugar body))
-                                (map desugar (map get-value list-bind)))
-           ]
-    [with*S (list-bind body) (app (fun (map get-name list-bind) (desugar body))
                                 (map desugar (map get-value list-bind)))]
+    [with*S (list-bind body) (app (fun (list (get-name (car list-bind))) (if (empty? (cdr list-bind)) (desugar body) (desugar (with*S (cdr list-bind) body))))
+                                (list (desugar (get-value (car list-bind)))))]
     [idS (s) (id s)]
     [funS (p b) (fun p (desugar b))]
     [appS (f e) (app (desugar f) (map desugar e))]
@@ -31,9 +31,7 @@
 (test (desugar (parse '(fun (x) x))) (fun '(x) (id 'x)))
 (test (desugar (parse '(fun (x y z) x))) (fun '(x y z) (id 'x)))
 (test (desugar (parse '((fun (x y z) x) 5 6))) (app (fun '(x y z) (id 'x)) (list (num 5) (num 6))))
-(test (desugar (parse '{with* {{x {+ 5 5}} {y 2}} {* x y}})) (app (fun '(x y) (binop * (id 'x) (id 'y))) (list (binop + (num 5) (num 5)) (num 2)) ))
-(test (desugar (parse '{with* {{x 3} {y {+ 2 x}} {z {+ x y}}} z}))  (app (fun '(x y z) (id 'z)) (list (num 3) (binop + (num 2) (id 'x)) (binop + (id 'x) (id 'y)))) )
-
+(test (desugar (parse '{with* {{x 3} {y {+ 2 x}} {z {+ x y}}} z})) (app (fun '(x) (app (fun '(y) (app (fun '(z) (id 'z)) (list (binop + (id 'x) (id 'y))))) (list (binop + (num 2) (id 'x))))) (list (num 3))))
 
 (define (cparse sexp)
   (desugar (parse sexp)))
@@ -44,23 +42,23 @@
     [id (v) (lookup v env)]
     [fun (ls b) (closureV ls b env)]
     [app (fx arg-l) 
-         (local ([define fval (interp fx env)])
+         (local ((define fval (interp fx env)))
            (if (closureV? fval)
                (interp (closureV-body fval)
-                       (join-arg (closureV-param fval) arg-l (closureV-env fval)))
+                       (join-arg (closureV-param fval) arg-l (closureV-env fval) (closureV-env fval)))
                (error 'interp (string-append (~a fx) " expression is not a function"))))]
     [binop (f l r) (applyV f (interp l env) (interp r env))]))
 
-
-(define (join-arg param-l arg-l env)
+(define (join-arg param-l arg-l env envOriginal)
   (cond
     [(or (and (empty? param-l) (not (empty? arg-l))) (and (not (empty? param-l)) (empty? arg-l))) " number of values diferent from number of args"]
     [(and (empty? param-l) (empty? arg-l)) env]
-    [else (join-arg (cdr param-l) (cdr arg-l) (aSub (car param-l) (interp (car arg-l) env) env))]))
+    [else (join-arg (cdr param-l) (cdr arg-l) (aSub (car param-l) (interp (car arg-l) envOriginal) env) envOriginal)]))
+
 
 (define (lookup v env)
   (cond
-    [(mtSub? env) "Error, variable not found"]
+    [(mtSub? env) (error 'lookup (string-append (symbol->string v) " symbol is not in the env")) ]
     [(aSub? env) (if (equal? (aSub-name env) v) (aSub-value env) (lookup v (aSub-env env)))]))
 
 (define (applyV f l r)
@@ -92,3 +90,4 @@
 (test (rinterp (cparse '{with* {{x 3} {y {+ 2 x}} {x 10} {z {+ x y}}} z})) (numV 15))
 (test/exn (rinterp (cparse '{with {{x 10} {x 20}} x})) "El id x está repetido")
 (test (rinterp (cparse '{with* {{x 10} {x 20}} x})) (numV 20))
+(test/exn (rinterp (cparse '{{fun {x y} y} 3 {+ 2 x}})) "x symbol is not in the env")
