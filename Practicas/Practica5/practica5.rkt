@@ -25,20 +25,21 @@
   [binopR (f procedure?)
          (l RCFAEL?)
          (r RCFAEL?)])
+
+(define-type opV
+  [inc (i procedure?) (n number?)]
+  [dec (d procedure?) (n number?)]
+  [Mzero? (z procedure?) (n number?)]
+  [Mnum? (n procedure?) (m number?)]
+  [neg (n procedure?) (m number?)]
+  [bool? (b procedure?) (v bool?)]
+  [Mfirst (f procedure?) (l MList?)]
+  [Mrest (f procedure?) (l MList?)]
+  [Mempty? (f procedure?) (l MList?)]
+  [Mlist? (f procedure?) (l MList?)])
   
-  
-#|
-<RCFAEL>::= 
-**|<id>
-**| <num>**
-**| <bool>
-**| <MList>
-**| {with {{<id> <RCFAEL>}+} <RCFAEL>}
-**| {rec {{<id> <RCFAEL>}+} <RCFAEL>}
-**| {fun {<id>*} <RCFAEL>}
-**| {if <RCFAEL> <RCFAEL> <RCFAEL>}
-**| {equal? <RCFAEL> <RCFAEL>}
-**| {<op> <RCFAEL>}
-**| {<binop> <RCFAEL> <RCFAEL>}
-| {<RCFAEL> <RCFAEL>*}
-|#
+
+
+
+
+
