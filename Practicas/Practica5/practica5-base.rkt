@@ -11,44 +11,52 @@
 |#
 
 (define-type Binding
-  [bind (name symbol?) (val FAES?)])
+  [bind (name symbol?) (val RCFAES?)])
 
-(define-type FAES
+(define-type RCFAES
   [numS (n number?)]
+  [boolS (b boolean?)]
+  [mListS (l MList?)]
   [withS (bindings (listof bind?))
-         (body FAES?)]
+         (body RCFAES?)]
   [with*S (bindings (listof bind?))
-          (body FAES?)]
+          (body RCFAES?)]
+  [recS (bindings (listof bind?))
+         (body RCFAES?)]
   [idS (name symbol?)]
+  [ifS (cond RCFAES?) (then RCFAES?) (else RCFAES?)]
+  [equalS (left RCFAES?) (right RCFAES?)]
   [funS (params (listof symbol?))
-        (body FAES?)]
-  [appS (fun FAES?)
-        (args (listof FAES?))]
+        (body RCFAES?)]
+  [appS (fun RCFAES?)
+        (args (listof RCFAES?))]
+  [opS (f procedure?)
+         (r RCFAES?)]
   [binopS (f procedure?)
-         (l FAES?)
-         (r FAES?)])
+         (l RCFAES?)
+         (r RCFAES?)])
 
-(define-type FAE
+(define-type RCFAEL
   [num (n number?)]
   [id (name symbol?)]
   [fun (params (listof symbol?))
-       (body FAE?)]
-  [app (fun FAE?)
-       (args (listof FAE?))]
+       (body RCFAEL?)]
+  [app (fun RCFAEL?)
+       (args (listof RCFAEL?))]
   [binop (f procedure?)
-         (l FAE?)
-         (r FAE?)])
+         (l RCFAEL?)
+         (r RCFAEL?)])
 
-(define-type FAE-Value
+(define-type RCFAEL-Value
   [numV (n number?)]
   [closureV (param (listof symbol?))
-            (body FAE?)
+            (body RCFAEL?)
             (env Env?)])
 
 (define-type Env
   [mtSub]
   [aSub (name symbol?) 
-        (value FAE-Value?) 
+        (value RCFAEL-Value?) 
         (env Env?)])
 
 ; FUNCIONES AUXILIARES
