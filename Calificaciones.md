@@ -27,6 +27,11 @@ mas bien usen la función
 
 **Calificación: 10**
 
+### Practica 4
+Muy bien, aunque su interprete tiene un bug en los with multi parametricos.
+
+**Calificación: 10**
+
 ## Tareas
 
 ### Tarea 1
