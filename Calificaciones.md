@@ -29,6 +29,16 @@ mas bien usen la función
 
 ## Tareas
 
+### Tarea 1
+Problema I: Bien, pero no es evidente que su algoritmo alternativo es 
+mas eficiente que un stack, es evidente que era O(n^2) y hubiera sido
+mas facil mostrar que su version es mejor que esta complejidad.
+Problema II: Muy bien.
+Problema III: Su forma Brujin es incorrecta, y no escribieron los resultados
+parciales de la corrida.
+
+**Calificación: 8**
+
 ### Tarea 2
 
 Problema 1: En realidad que el lenguaje anfitrión sea Racket/Scheme no nos dice
