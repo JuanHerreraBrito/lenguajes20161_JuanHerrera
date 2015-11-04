@@ -31,13 +31,15 @@
   [appS (fun RCFAES?)
         (args (listof RCFAES?))]
   [opS (f procedure?)
-         (r RCFAES?)]
+         (p RCFAES?)]
   [binopS (f procedure?)
          (l RCFAES?)
          (r RCFAES?)])
 
 (define-type RCFAEL
   [num (n number?)]
+  [bool (b boolean?)]
+  [mList (l MList?)]
   [id (name symbol?)]
   [fun (params (listof symbol?))
        (body RCFAEL?)]
@@ -49,9 +51,11 @@
 
 (define-type RCFAEL-Value
   [numV (n number?)]
+  [boolV (b boolean?)]
   [closureV (param (listof symbol?))
             (body RCFAEL?)
             (env Env?)])
+
 
 (define-type Env
   [mtSub]
@@ -78,7 +82,14 @@
     [(+) +]
     [(-) -]
     [(*) *]
-    [(/) /]))
+    [(/) /]
+    [(<) <]
+    [(>) >]
+    [(<=) <=]
+    [(>=) >=]
+    [(and) (lambda (x y) (and x y))]
+    [(or) (lambda (x y) (or x y))]
+    ))
   
 ;; buscaRepetido: listof(X) (X X -> boolean) -> X
 ;; Dada una lista, busca repeticiones dentro de la misma
@@ -107,10 +118,11 @@
   (cond
     [(symbol? sexp) (idS sexp)]
     [(number? sexp) (numS sexp)]
+    [(boolean? sexp) (boolS sexp)]
     [(list? sexp)
      (case (car sexp)
        [(with) (withS (parse-bindings (cadr sexp) #f) (parse (caddr sexp)))]
        [(with*) (with*S (parse-bindings (cadr sexp) #t) (parse (caddr sexp)))]
        [(fun) (funS (cadr sexp) (parse (caddr sexp)))]
-       [(+ - / *) (binopS (elige (car sexp)) (parse (cadr sexp)) (parse (caddr sexp)))]
+       [(+ - / * < > <= >= and or) (binopS (elige (car sexp)) (parse (cadr sexp)) (parse (caddr sexp)))]
        [else (appS (parse (car sexp)) (map parse (cdr sexp)))])]))
