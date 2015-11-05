@@ -4,28 +4,7 @@
 
 (print-only-errors true)
 
-#| 
-(define-type RCFAEL
-  [idR (name symbol?)]
-  [numR (n number?)]
-  [boolR (b boolean?)]
-  [MListR (l MList?)]
-  [withR (bindings (listof bind?))
-         (body RCFAEL?)]
-  [recR (bindings (listof bind?))
-         (body RCFAEL?)] 
-  [funR (params (listof symbol?))
-        (body RCFAEL?)]
-  [appR (fun RCFAEL?)
-        (args (listof RCFAEL?))]
-  [ifR (con RCFAEL?) (then RCFAEL?) (else RCFAEL?)]
-  [equalR? (r RCFAEL?) (l RCFAEL?)]
-  [opR (f procedure?)
-         (l RCFAEL?)]
-  [binopR (f procedure?)
-         (l RCFAEL?)
-         (r RCFAEL?)])
-
+#|
 (define-type opV
   [inc (i procedure?) (n number?)]
   [dec (d procedure?) (n number?)]
@@ -50,7 +29,7 @@
                                 (list (desugar (get-value (car list-bind)))))]
     [recS (list-bind body) #| verificar |# #f]
     [idS (s) (id s)]
-    [ifS (cond then else) #| verificar |# #f]
+    [ifS (c t e) (iif (desugar c) (desugar t) (desugar e))]
     [equalS (left right)#| verificar |# #f]
     [funS (p b) (fun p (desugar b))]
     [appS (f e) (app (desugar f) (map desugar e))]
@@ -67,6 +46,7 @@
 
 (desugar (parse '{and #f #t}))
 (desugar (parse '#t))
+(desugar (parse '{if {and #t #f} {+ 5 6} {- 5 4}}))
 ;(test (desugar (parse '{and #f #t})) (binop (lambda (x y) (and x y)) (bool #f) (bool #t)))
 
 (test (desugar (parse '{+ 3 4})) (binop + (num 3) (num 4)))

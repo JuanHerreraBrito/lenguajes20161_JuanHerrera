@@ -41,6 +41,7 @@
   [bool (b boolean?)]
   [mList (l MList?)]
   [id (name symbol?)]
+  [iif (c RCFAEL?) (t RCFAEL?) (e RCFAEL?)]
   [fun (params (listof symbol?))
        (body RCFAEL?)]
   [app (fun RCFAEL?)
@@ -123,6 +124,7 @@
      (case (car sexp)
        [(with) (withS (parse-bindings (cadr sexp) #f) (parse (caddr sexp)))]
        [(with*) (with*S (parse-bindings (cadr sexp) #t) (parse (caddr sexp)))]
+       [(if) (ifS (parse (cadr sexp)) (parse (caddr sexp)) (parse (cadddr sexp)))]
        [(fun) (funS (cadr sexp) (parse (caddr sexp)))]
        [(+ - / * < > <= >= and or) (binopS (elige (car sexp)) (parse (cadr sexp)) (parse (caddr sexp)))]
        [else (appS (parse (car sexp)) (map parse (cdr sexp)))])]))
