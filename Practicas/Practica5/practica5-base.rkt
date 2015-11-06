@@ -46,6 +46,8 @@
        (body RCFAEL?)]
   [app (fun RCFAEL?)
        (args (listof RCFAEL?))]
+  [op (f procedure?)
+         (p RCFAEL?)]
   [binop (f procedure?)
          (l RCFAEL?)
          (r RCFAEL?)])
@@ -92,6 +94,20 @@
     [(or) (lambda (x y) (or x y))]
     ))
   
+(define (eligeUnaria s)
+  (case s
+    [(inc) (lambda (x) (+ x 1))]
+    [(dec) (lambda (x) (- x 1))]
+    [(zero?) (lambda (x) (zero? x))]
+    [(num?) (lambda (x) (number? x))]
+    [(neg) (lambda (x) (not x))]
+    [(bool?) (lambda (x) (boolean? x))]
+    [(first) #f] ;falta implementar en listas
+    [(rest) #f] ;falta implementar en listas
+    [(empty?) #f] ;falta implementar en listas
+    [(list?) #f] ;falta implementar en listas
+    ))
+ 
 ;; buscaRepetido: listof(X) (X X -> boolean) -> X
 ;; Dada una lista, busca repeticiones dentro de la misma
 ;; usando el criterio comp. Regresa el primer elemento repetido
@@ -126,5 +142,6 @@
        [(with*) (with*S (parse-bindings (cadr sexp) #t) (parse (caddr sexp)))]
        [(if) (ifS (parse (cadr sexp)) (parse (caddr sexp)) (parse (cadddr sexp)))]
        [(fun) (funS (cadr sexp) (parse (caddr sexp)))]
+       [(inc dec zero? num? neg bool? first rest empty? list?) (opS (eligeUnaria (car sexp)) (parse (cadr sexp)))]
        [(+ - / * < > <= >= and or) (binopS (elige (car sexp)) (parse (cadr sexp)) (parse (caddr sexp)))]
        [else (appS (parse (car sexp)) (map parse (cdr sexp)))])]))

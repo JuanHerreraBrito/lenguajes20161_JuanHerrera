@@ -33,7 +33,7 @@
     [equalS (left right)#| verificar |# #f]
     [funS (p b) (fun p (desugar b))]
     [appS (f e) (app (desugar f) (map desugar e))]
-    [opS (f p)#| verificar |# #f]
+    [opS (f p) (op f (desugar p))]
     [binopS (op l r) (binop op (desugar l) (desugar r))]))
 
 (define (get-name bd)
@@ -65,6 +65,7 @@
     [num (n) (numV n)]
     [bool (b) (boolV b)]
     [id (v) (lookup v env)]
+    [iif (c t e) (if (boolV-b (interp c env)) (interp t env) (interp e env))]
     [fun (ls b) (closureV ls b env)]
     [app (fx arg-l) 
          (local ((define fval (interp fx env)))
@@ -72,6 +73,7 @@
                (interp (closureV-body fval)
                        (join-arg (closureV-param fval) arg-l (closureV-env fval) (closureV-env fval)))
                (error 'interp (string-append (~a fx) " expression is not a function"))))]
+    [op (f p) (applyV (f (getV (interp p env))))]
     [binop (f l r) (applyV (f (getV (interp l env)) (getV (interp r env))))]
     [else #f]))
 
@@ -108,6 +110,14 @@
 (test (rinterp (cparse '{+ 3 4})) (numV 7))
 (test (rinterp (cparse '{and #f #t})) (boolV #f))
 (test (rinterp (cparse '{<= 3 4})) (boolV #t))
+(test (rinterp (cparse '{if {or #f #t} {+ 3 4} {+ 3 3}} )) (numV 7))
+(test (rinterp (cparse '{inc 3})) (numV 4))
+(test (rinterp (cparse '{neg #t})) (boolV #f))
+(test (rinterp (cparse '{inc 3})) (numV 4))
+(test (rinterp (cparse '{bool? 10})) (boolV #f))
+(test (rinterp (cparse '{zero? 10})) (boolV #f))
+(test (rinterp (cparse '{zero? 0})) (boolV #t))
+
 (test (rinterp (cparse '{+ 3 4})) (numV 7))
 (test (rinterp (cparse '{+ {- 3 4} 7})) (numV 6))
 (test (rinterp (cparse '{with {{x {+ 5 5}}} {+ x x}})) (numV 20))
