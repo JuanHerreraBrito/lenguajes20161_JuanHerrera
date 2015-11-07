@@ -2,10 +2,10 @@
 
 
 ;2 MList
-(define-type MList
+#|(define-type MList
   [MEmpty]
-  [MCons (n any/c) (l MList?)])
-
+  [MCons (n RCFAES?) (l RCFAES?)])
+|#
 #|
 
 |#
@@ -16,7 +16,8 @@
 (define-type RCFAES
   [numS (n number?)]
   [boolS (b boolean?)]
-  [mListS (l MList?)]
+  [MConsS (l RCFAES?) (r RCFAES?)]
+  [MEmptyS]
   [withS (bindings (listof bind?))
          (body RCFAES?)]
   [with*S (bindings (listof bind?))
@@ -39,7 +40,8 @@
 (define-type RCFAEL
   [num (n number?)]
   [bool (b boolean?)]
-  [mList (l MList?)]
+  [MEmpty]
+  [MCons (p RCFAEL?) (l RCFAEL?)]
   [id (name symbol?)]
   [iif (c RCFAEL?) (t RCFAEL?) (e RCFAEL?)]
   [fun (params (listof symbol?))
@@ -57,7 +59,10 @@
   [boolV (b boolean?)]
   [closureV (param (listof symbol?))
             (body RCFAEL?)
-            (env Env?)])
+            (env Env?)]
+  [MEmptyV]
+  [MConsV (p RCFAEL-Value?)
+            (l RCFAEL-Value?)])
 
 
 (define-type Env
@@ -138,6 +143,8 @@
     [(boolean? sexp) (boolS sexp)]
     [(list? sexp)
      (case (car sexp)
+       [(MCons) (MConsS (parse (cadr sexp)) (parse (caddr sexp)))]
+       [(MEmpty) (MEmptyS)]
        [(with) (withS (parse-bindings (cadr sexp) #f) (parse (caddr sexp)))]
        [(with*) (with*S (parse-bindings (cadr sexp) #t) (parse (caddr sexp)))]
        [(if) (ifS (parse (cadr sexp)) (parse (caddr sexp)) (parse (cadddr sexp)))]

@@ -22,7 +22,8 @@
   (type-case RCFAES expr
     [numS (n) (num n)]
     [boolS (b) (bool b)]
-    [mListS (l) (mList l)]#| verificar |#
+    [MEmptyS () (MEmpty)]
+    [MConsS (p l) (MCons (desugar p) (desugar l))]
     [withS (list-bind body) (app (fun (map get-name list-bind) (desugar body))
                                 (map desugar (map get-value list-bind)))]
     [with*S (list-bind body) (app (fun (list (get-name (car list-bind))) (if (empty? (cdr list-bind)) (desugar body) (desugar (with*S (cdr list-bind) body))))
@@ -48,6 +49,8 @@
 (desugar (parse '#t))
 (desugar (parse '{if {and #t #f} {+ 5 6} {- 5 4}}))
 ;(test (desugar (parse '{and #f #t})) (binop (lambda (x y) (and x y)) (bool #f) (bool #t)))
+(desugar (parse '{MEmpty}))
+(desugar (parse '{MCons {and #f #t} (MEmpty)}))
 
 (test (desugar (parse '{+ 3 4})) (binop + (num 3) (num 4)))
 (test (desugar (parse '{+ {- 3 4} 7})) (binop + (binop - (num 3) (num 4)) (num 7)))
@@ -64,6 +67,8 @@
   (type-case RCFAEL expr
     [num (n) (numV n)]
     [bool (b) (boolV b)]
+    [MCons (p l) (MConsV (interp p env) (interp l env))]
+    [MEmpty () (MEmptyV)]
     [id (v) (lookup v env)]
     [iif (c t e) (if (boolV-b (interp c env)) (interp t env) (interp e env))]
     [fun (ls b) (closureV ls b env)]
@@ -74,8 +79,7 @@
                        (join-arg (closureV-param fval) arg-l (closureV-env fval) (closureV-env fval)))
                (error 'interp (string-append (~a fx) " expression is not a function"))))]
     [op (f p) (applyV (f (getV (interp p env))))]
-    [binop (f l r) (applyV (f (getV (interp l env)) (getV (interp r env))))]
-    [else #f]))
+    [binop (f l r) (applyV (f (getV (interp l env)) (getV (interp r env))))]))
 
 (define (join-arg param-l arg-l env envOriginal)
   (cond
@@ -117,6 +121,7 @@
 (test (rinterp (cparse '{bool? 10})) (boolV #f))
 (test (rinterp (cparse '{zero? 10})) (boolV #f))
 (test (rinterp (cparse '{zero? 0})) (boolV #t))
+(test (rinterp (cparse '{MCons {and #f #t} {MCons {and #f #t} (MEmpty)}})) (MConsV (boolV #f) (MConsV (boolV #f) (MEmptyV))))
 
 (test (rinterp (cparse '{+ 3 4})) (numV 7))
 (test (rinterp (cparse '{+ {- 3 4} 7})) (numV 6))
