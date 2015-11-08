@@ -34,8 +34,8 @@
     [equalS (left right)#| verificar |# #f]
     [funS (p b) (fun p (desugar b))]
     [appS (f e) (app (desugar f) (map desugar e))]
-    [opS (f p) (op f (desugar p))]
-    [binopS (op l r) (binop op (desugar l) (desugar r))]))
+    [binopS (op l r) (binop op (desugar l) (desugar r))]
+    [opS (f p) (op f (desugar p))]))
 
 (define (get-name bd)
   (type-case Binding bd
@@ -46,11 +46,12 @@
     [bind (n v) v]))
 
 (desugar (parse '{and #f #t}))
-(desugar (parse '#t))
+(desugar (parse #t))
 (desugar (parse '{if {and #t #f} {+ 5 6} {- 5 4}}))
 ;(test (desugar (parse '{and #f #t})) (binop (lambda (x y) (and x y)) (bool #f) (bool #t)))
 (desugar (parse '{MEmpty}))
 (desugar (parse '{MCons {and #f #t} (MEmpty)}))
+(desugar (parse '{first {MCons {and #f #t} (MEmpty)}}))
 
 (test (desugar (parse '{+ 3 4})) (binop + (num 3) (num 4)))
 (test (desugar (parse '{+ {- 3 4} 7})) (binop + (binop - (num 3) (num 4)) (num 7)))
@@ -78,7 +79,9 @@
                (interp (closureV-body fval)
                        (join-arg (closureV-param fval) arg-l (closureV-env fval) (closureV-env fval)))
                (error 'interp (string-append (~a fx) " expression is not a function"))))]
-    [op (f p) (applyV (f (getV (interp p env))))]
+    [op (f p) (if (list? (getV (interp p env)))
+                  (if (boolean? (f (getV (interp p env)))) (applyV (f (getV (interp p env)))) (f (getV (interp p env))))
+                  (applyV (f (getV (interp p env)))))]
     [binop (f l r) (applyV (f (getV (interp l env)) (getV (interp r env))))]))
 
 (define (join-arg param-l arg-l env envOriginal)
@@ -97,12 +100,16 @@
   (cond
     [(number? v) (numV v)]
     [(boolean? v) (boolV v)]
+    [(list? v) (if (empty? v) (MEmptyV) (MConsV (car v) (cadr v)))]
+    ;hacer applyV para lista
     [else (error 'applyV (string-append (symbol->string v) " no es una operacion binaria"))]))
 
 (define (getV expr)
   (type-case RCFAEL-Value expr
   [numV (n) n]
   [boolV (b) b]
+  [MEmptyV () empty]
+  [MConsV (p l) (list p l)]  
   [else (error 'getV (string-append (symbol->string expr) " los tipos no coinciden"))]))
 
 (define (rinterp expr)
@@ -122,6 +129,12 @@
 (test (rinterp (cparse '{zero? 10})) (boolV #f))
 (test (rinterp (cparse '{zero? 0})) (boolV #t))
 (test (rinterp (cparse '{MCons {and #f #t} {MCons {and #f #t} (MEmpty)}})) (MConsV (boolV #f) (MConsV (boolV #f) (MEmptyV))))
+(test (rinterp (cparse '{rest {MCons {and #f #t} {MCons {and #f #t} (MEmpty)}}})) (MConsV (boolV #f) (MEmptyV)))
+(test (rinterp (cparse '{first {MCons {and #f #t} {MCons {and #f #t} (MEmpty)}}})) (boolV #f))
+(test (rinterp (cparse '{empty? {MCons {and #f #t} {MCons {and #f #t} (MEmpty)}}})) (boolV #f))
+(test (rinterp (cparse '{empty? {MEmpty}})) (boolV #t))
+(test (rinterp (cparse '{list? {MCons {and #f #t} {MCons {and #f #t} (MEmpty)}}})) (boolV #t))
+(test (rinterp (cparse '{list? {bool? 10}})) (boolV #f))
 
 (test (rinterp (cparse '{+ 3 4})) (numV 7))
 (test (rinterp (cparse '{+ {- 3 4} 7})) (numV 6))

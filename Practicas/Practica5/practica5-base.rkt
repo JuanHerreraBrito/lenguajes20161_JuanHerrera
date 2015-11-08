@@ -107,12 +107,12 @@
     [(num?) (lambda (x) (number? x))]
     [(neg) (lambda (x) (not x))]
     [(bool?) (lambda (x) (boolean? x))]
-    [(first) #f] ;falta implementar en listas
-    [(rest) #f] ;falta implementar en listas
-    [(empty?) #f] ;falta implementar en listas
-    [(list?) #f] ;falta implementar en listas
+    [(first) (lambda (x) (car x))] 
+    [(rest) (lambda (x) (cadr x))] 
+    [(empty?) (lambda (x) (empty? x))] 
+    [(list?) (lambda (x) (list? x))]
     ))
- 
+
 ;; buscaRepetido: listof(X) (X X -> boolean) -> X
 ;; Dada una lista, busca repeticiones dentro de la misma
 ;; usando el criterio comp. Regresa el primer elemento repetido
@@ -149,6 +149,6 @@
        [(with*) (with*S (parse-bindings (cadr sexp) #t) (parse (caddr sexp)))]
        [(if) (ifS (parse (cadr sexp)) (parse (caddr sexp)) (parse (cadddr sexp)))]
        [(fun) (funS (cadr sexp) (parse (caddr sexp)))]
-       [(inc dec zero? num? neg bool? first rest empty? list?) (opS (eligeUnaria (car sexp)) (parse (cadr sexp)))]
        [(+ - / * < > <= >= and or) (binopS (elige (car sexp)) (parse (cadr sexp)) (parse (caddr sexp)))]
+       [(inc dec zero? num? neg bool? first rest empty? list?) (opS (eligeUnaria (car sexp)) (parse (cadr sexp)))]
        [else (appS (parse (car sexp)) (map parse (cdr sexp)))])]))
