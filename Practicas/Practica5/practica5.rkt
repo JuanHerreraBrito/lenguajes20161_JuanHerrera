@@ -4,20 +4,6 @@
 
 (print-only-errors true)
 
-#|
-(define-type opV
-  [inc (i procedure?) (n number?)]
-  [dec (d procedure?) (n number?)]
-  [Mzero? (z procedure?) (n number?)]
-  [Mnum? (n procedure?) (m number?)]
-  [neg (n procedure?) (m number?)]
-  [bool? (b procedure?) (v bool?)]
-  [Mfirst (f procedure?) (l MList?)]
-  [Mrest (f procedure?) (l MList?)]
-  [Mempty? (f procedure?) (l MList?)]
-  [Mlist? (f procedure?) (l MList?)])
-|#
-
 (define (desugar expr)
   (type-case RCFAES expr
     [numS (n) (num n)]
@@ -31,7 +17,7 @@
     [recS (list-bind body) #| verificar |# #f]
     [idS (s) (id s)]
     [ifS (c t e) (iif (desugar c) (desugar t) (desugar e))]
-    [equalS (left right)#| verificar |# #f]
+    [equalS? (l r) (eqal? (desugar l) (desugar r))]
     [funS (p b) (fun p (desugar b))]
     [appS (f e) (app (desugar f) (map desugar e))]
     [binopS (op l r) (binop op (desugar l) (desugar r))]
@@ -52,6 +38,7 @@
 (desugar (parse '{MEmpty}))
 (desugar (parse '{MCons {and #f #t} (MEmpty)}))
 (desugar (parse '{first {MCons {and #f #t} (MEmpty)}}))
+(desugar (parse '{equal? {and #f #t} {and #f #t}}))
 
 (test (desugar (parse '{+ 3 4})) (binop + (num 3) (num 4)))
 (test (desugar (parse '{+ {- 3 4} 7})) (binop + (binop - (num 3) (num 4)) (num 7)))
@@ -72,6 +59,7 @@
     [MEmpty () (MEmptyV)]
     [id (v) (lookup v env)]
     [iif (c t e) (if (boolV-b (interp c env)) (interp t env) (interp e env))]
+    [eqal? (l r) (applyV (equal? l r))]
     [fun (ls b) (closureV ls b env)]
     [app (fx arg-l) 
          (local ((define fval (interp fx env)))
@@ -101,7 +89,6 @@
     [(number? v) (numV v)]
     [(boolean? v) (boolV v)]
     [(list? v) (if (empty? v) (MEmptyV) (MConsV (car v) (cadr v)))]
-    ;hacer applyV para lista
     [else (error 'applyV (string-append (symbol->string v) " no es una operacion binaria"))]))
 
 (define (getV expr)
@@ -135,6 +122,7 @@
 (test (rinterp (cparse '{empty? {MEmpty}})) (boolV #t))
 (test (rinterp (cparse '{list? {MCons {and #f #t} {MCons {and #f #t} (MEmpty)}}})) (boolV #t))
 (test (rinterp (cparse '{list? {bool? 10}})) (boolV #f))
+(test (rinterp (cparse '{equal? {and #f #f} {and #f #t}})) (boolV #f))
 
 (test (rinterp (cparse '{+ 3 4})) (numV 7))
 (test (rinterp (cparse '{+ {- 3 4} 7})) (numV 6))

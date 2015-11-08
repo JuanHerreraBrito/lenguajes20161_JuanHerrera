@@ -1,11 +1,5 @@
 #lang plai
 
-
-;2 MList
-#|(define-type MList
-  [MEmpty]
-  [MCons (n RCFAES?) (l RCFAES?)])
-|#
 #|
 
 |#
@@ -26,7 +20,7 @@
          (body RCFAES?)]
   [idS (name symbol?)]
   [ifS (cond RCFAES?) (then RCFAES?) (else RCFAES?)]
-  [equalS (left RCFAES?) (right RCFAES?)]
+  [equalS? (left RCFAES?) (right RCFAES?)]
   [funS (params (listof symbol?))
         (body RCFAES?)]
   [appS (fun RCFAES?)
@@ -44,6 +38,7 @@
   [MCons (p RCFAEL?) (l RCFAEL?)]
   [id (name symbol?)]
   [iif (c RCFAEL?) (t RCFAEL?) (e RCFAEL?)]
+  [eqal? (l RCFAEL?) (r RCFAEL?)]
   [fun (params (listof symbol?))
        (body RCFAEL?)]
   [app (fun RCFAEL?)
@@ -149,6 +144,7 @@
        [(with*) (with*S (parse-bindings (cadr sexp) #t) (parse (caddr sexp)))]
        [(if) (ifS (parse (cadr sexp)) (parse (caddr sexp)) (parse (cadddr sexp)))]
        [(fun) (funS (cadr sexp) (parse (caddr sexp)))]
+       [(equal?) (equalS? (parse (cadr sexp)) (parse (caddr sexp)))]
        [(+ - / * < > <= >= and or) (binopS (elige (car sexp)) (parse (cadr sexp)) (parse (caddr sexp)))]
        [(inc dec zero? num? neg bool? first rest empty? list?) (opS (eligeUnaria (car sexp)) (parse (cadr sexp)))]
        [else (appS (parse (car sexp)) (map parse (cdr sexp)))])]))
