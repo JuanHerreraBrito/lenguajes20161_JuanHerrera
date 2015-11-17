@@ -1,11 +1,15 @@
 class Vertex(object):
 	"""docstring for Vertex"""
-	def __init__(self, inicio, fin, grado):
+	def __init__(self, id):
 		super(Vertex, self).__init__()
 		self.neighbours[]
-		self.inicio= inicio
-		self.fin= fin
-		self.grado= grado
+		self.id= id
+		self.grado= 0
+	
+	def addNeighbour(self, newNeighbour):
+		self.neighbours[grado]=newNeighbour
+		self.grado++
+
 		"""Metodo que regresa los vertices adyacentes"""
 	def neighbours(self):
 			return self.neighbours
