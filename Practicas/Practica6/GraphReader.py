@@ -1,6 +1,6 @@
-from sys import argv
+#from sys import argv
 
-script, nombreArchivo = argv
+#script, nombreArchivo = argv
 
 class GraphReader(object):
     
@@ -11,8 +11,17 @@ class GraphReader(object):
     def __init__(self, nombre = None):
         self.nombre = nombre
 
+    def get_directed(self):
+        return self.directed
+
+    def get_vertices(self):
+        return self.vertices
+
+    def get_aristas(self):
+        return self.aristas
+
+class ReadJson(GraphReader):
     def read_file(self, name):
-        """ Para json, se debe meter en metodo y hacer clase en general """
         jsonFile = open(name, 'r')
         s = jsonFile.read()
         arr = s.split(',', 1)
@@ -35,17 +44,52 @@ class GraphReader(object):
 
         jsonFile.close()
 
-    def get_directed(self):
-        return self.directed
+class ReadCsv(GraphReader):
+    def read_file(self, name):
+        csvFile = open(name, 'r')
+        s = csvFile.read()
+        self.directed = s[7]
+        arr = s[9:]
+        arr = arr.split('\n')
+        vertices = ""
+        self.aristas = [None]* arr.__len__()
+        for i in range(0, arr.__len__()):
+            aux = arr[i].split(', ')
+            self.aristas[i] = [aux[0].split('"')[1], aux[1].split('"')[1], int(aux[2])]
+            vertices += aux[0].split('"')[1] + aux[1].split('"')[1]
+        self.vertices = cleanVertex(vertices)
+        csvFile.close()
+    
+    global cleanVertex
+    def cleanVertex(string):
+        stringResult = string[0]
+        while (string != "" ):
+            strn = string.split(string[0])
+            stringAux = ""
+            for i in range(0, strn.__len__()):
+                stringAux += strn[i]
+            string = stringAux
+            if (string != ""):
+                stringResult += string[0]
+        return list(stringResult)
 
-    def get_vertices(self):
-        return self.vertices
+class ReadXml(GraphReader):
+    def read_file(self, name):
+        xmlFile = open(name, 'r')
+        s = xmlFile.read()
+        #falta definir para xml
+        arr = s.split(',', 1)
+        xmlFile.close()
 
-    def get_aristas(self):
-        return self.aristas
 
-cosa = GraphReader()
-cosa.read_file(nombreArchivo)
-print cosa.get_directed()
-print cosa.get_vertices()
-print cosa.get_aristas()
+cosa1 = ReadJson()
+cosa1.read_file("graph.json")
+print cosa1.get_directed()
+print cosa1.get_vertices()
+print cosa1.get_aristas()
+
+cosa2 = ReadCsv()
+cosa2.read_file("graph.csv")
+print cosa2.get_directed()
+print cosa2.get_vertices()
+print cosa2.get_aristas()
