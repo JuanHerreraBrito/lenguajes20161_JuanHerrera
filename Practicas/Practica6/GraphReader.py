@@ -1,6 +1,4 @@
-#from sys import argv
 
-#script, nombreArchivo = argv
 
 class GraphReader(object):
     
@@ -77,19 +75,40 @@ class ReadXml(GraphReader):
     def read_file(self, name):
         xmlFile = open(name, 'r')
         s = xmlFile.read()
-        #falta definir para xml
-        arr = s.split(',', 1)
+        arr = s.split('\n',3)
+	directed = arr[2]
+        self.directed = int(directed.split('"')[1])
+        arr = arr[3]
+        vertex = arr.split('edge',1)[0]
+	vertex = vertex.split('="')
+	self.vertices = [None]* (vertex.__len__() - 1)
+        for i in range(1, vertex.__len__()):
+            self.vertices[i - 1] = vertex[i].split('"')[0]
+        
+        edge = arr.split('edge',1)[1].split('\n')
+        self.aristas = [None]* (edge.__len__() - 1)
+        #print edge
+        for j in range(0, edge.__len__() - 1):
+            edgeAux = edge[j].split('"')
+            self.aristas[j] = [edgeAux[1], edgeAux[3], int(edgeAux[5])]
+         
         xmlFile.close()
 
-
 cosa1 = ReadJson()
-cosa1.read_file("graph.json")
+cosa1.read_file("petersen.json")
 print cosa1.get_directed()
 print cosa1.get_vertices()
 print cosa1.get_aristas()
 
 cosa2 = ReadCsv()
-cosa2.read_file("graph.csv")
+cosa2.read_file("petersen.csv")
 print cosa2.get_directed()
 print cosa2.get_vertices()
 print cosa2.get_aristas()
+
+cosa3 = ReadXml()
+cosa3.read_file("petersen.xml")
+
+print cosa3.get_directed()
+print cosa3.get_vertices()
+print cosa3.get_aristas()
