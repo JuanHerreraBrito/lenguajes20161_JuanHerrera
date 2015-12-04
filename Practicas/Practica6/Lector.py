@@ -15,7 +15,7 @@ arr = s.split(',', 1)
 """print arr[0].split(':', 1)[1]"""
 """ bueno en el caso actual """
 print "Esto es el '1' DIRIGIDO, '0' NoDIRIGIDO"
-print arr[0].split(': ', 1)[1] 
+print arr[0].split(': ', 1)[1]
 
 
 vertices = arr[1].split('[')[1]

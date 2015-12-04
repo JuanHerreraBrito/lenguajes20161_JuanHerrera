@@ -3,8 +3,9 @@ class Vertex(object):
 	def __init__(self, id):
 		super(Vertex, self).__init__()
 		self.neighbours
-		self.id= id
-		self.grado= 0
+		self.id = id
+		self.grado = 0
+                self.visitado = False
 	
 	def addNeighbour(self, newNeighbour):
 		self.neighbours[grado]=newNeighbour

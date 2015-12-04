@@ -3,8 +3,9 @@ class Edge(object):
 	def __init__(self, inicio, fin, peso):
 		super(Edge, self).__init__()
 		self.inicio = inicio
-		self.fin= fin
-		self.peso=peso
+		self.fin = fin
+		self.peso = peso
+                self.usada = False
 	
 	def weight(self):
 		return self.peso
