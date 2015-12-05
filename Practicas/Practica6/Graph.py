@@ -35,16 +35,16 @@ class Graph(object):
                 if self.dirigida:
                     tieneCiclos = False
                     for i in range (0, self.vertices.__len__()):
-                        print "Unicio nuevo arbol"
-                        print self.vertices[i].id
+                        #print "Unicio nuevo arbol"
+                        #print self.vertices[i].id
                         tieneCiclos = busquedaProfundidad(self, i, self.vertices[i].id)
-                        print " "
+                        #print " "
                         if tieneCiclos:
                             break
-                    if tieneCiclos:
-                        print "Con ciclos d"
-                    else:
-                        print "Sin ciclos d"
+                    #if tieneCiclos:
+                    #    print "Con ciclos"
+                    #else:
+                    #    print "Sin ciclos"
                     return tieneCiclos
                 else:
                     for i in range (0, self.vertices.__len__()):
@@ -53,16 +53,16 @@ class Graph(object):
                             self.auxVertices[i] = True
                             self.vertices[i].visitado = True
                             if not got_a_tree(self):
-                                print "con ciclos" 
+                                #print "con ciclos" 
                                 return True
-                    print "sin ciclos"
+                    #print "sin ciclos"
                     return False
 
         global got_a_tree
 	def got_a_tree(self):
             if self.q.empty():
                 #regresar sin ciclos y reiniciar todo
-                print "No tiene ciclos falta reiniciar cosas, ampliar para direccional"
+                #print "No tiene ciclos falta reiniciar cosas, ampliar para direccional"
                 return True
             else:
                 #regresar proceso para ciclos
@@ -87,7 +87,7 @@ class Graph(object):
                             #con vecino checamos si vecino esta visitado, si no visitamos, si si acabamos con un ciclo
                             self.aristas[i].usada = True
                             if self.vertices[vecino].visitado == True:
-                                print "tiene ciclos"
+                                #print "tiene ciclos"
                                 return False
                             if not self.dirigida:
                                 self.vertices[vecino].visitado = True
@@ -119,25 +119,25 @@ class Graph(object):
         def busquedaProfundidadAux(self, nombre):
             if self.q.empty():
                 #regresar sin ciclos y reiniciar todo
-                print "false"
+                #print "false"
                 return False
             else:
                 iA = self.q.get()
-                print iA 
+                #print iA 
                 actual = self.vertices[iA].id
-                print actual + " actual"
-                print self.vertices[iA].visitado
+                #print actual + " actual"
+                #print self.vertices[iA].visitado
                 if self.vertices[iA].visitado == False:
                     self.vertices[iA].visitado = True
                     for i in range(0, self.aristas.__len__()):
                         if (self.aristas[i].inicio == actual):
                             if(self.aristas[i].fin == nombre):
-                                print "True"
+                                #print "True"
                                 return True
                             self.aristas[i].usada = True
                             vecino = indiceVecino(self, self.aristas[i].fin)
-                            print "entra"
-                            print self.vertices[vecino].id
+                            #print "entra"
+                            #print self.vertices[vecino].id
                             self.q.put(vecino)
             return busquedaProfundidadAux(self, nombre)
             
@@ -156,6 +156,6 @@ g = Graph(['a', 'b', 'c', 'd', 'e', 'f'], [['a', 'b', 11], ['a', 'd', 1], ['a', 
 #    print i.fin
 #    print i.peso
 #    print "\n"
-print g.directed()
+#print g.directed()
 
 g.has_cycles()
